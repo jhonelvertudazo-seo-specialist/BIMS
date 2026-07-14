@@ -1,0 +1,686 @@
+/* ---------- Theme ---------- */
+/* Barangay Information and Management System (BIMS) brand theme.
+   Matches the reference mockups: a light/white sidebar with a blue brand
+   accent, amber/orange call-to-action buttons, and blue+orange charts. */
+:root {
+    --bs-primary: #2563eb;
+    --bs-primary-rgb: 37, 99, 235;
+    --bs-primary-bg-subtle: #dbe7fd;
+    --bs-primary-border-subtle: #bfd4fb;
+    --bs-primary-text-emphasis: #1e3a8a;
+    --bs-link-color: #2563eb;
+    --bs-link-color-rgb: 37, 99, 235;
+    --bs-link-hover-color: #1d4ed8;
+    --bs-link-hover-color-rgb: 29, 78, 216;
+    --bs-focus-ring-color: rgba(37, 99, 235, 0.25);
+
+    --bs-border-radius-sm: 0.375rem;
+    --bs-border-radius: 0.625rem;
+    --bs-border-radius-lg: 0.875rem;
+    --bs-border-radius-xl: 1.25rem;
+
+    /* Brand chrome (UI, not data) */
+    --brand-blue: #2563eb;
+    --brand-blue-soft: #dbe7fd;
+    --brand-ink: #33415c;
+    --brand-accent: #f0932b;
+    --brand-accent-dark: #d67c1a;
+
+    /* ---- Data-viz roles (validated palette, light surface) ---- */
+    --viz-surface: #ffffff;
+    --viz-text-primary: #0b0b0b;
+    --viz-text-secondary: #52514e;
+    --viz-text-muted: #898781;
+    --viz-gridline: #e1e0d9;
+    --viz-baseline: #c3c2b7;
+    --viz-blue: #2a78d6;
+    --viz-aqua: #1baf7a;
+    --viz-orange: #eb6834;
+    --viz-status-good: #0ca30c;
+    --viz-status-warning: #fab219;
+    --viz-status-serious: #ec835a;
+    --viz-status-critical: #d03b3b;
+}
+
+/* ---------- Base ---------- */
+
+html, body {
+    max-width: 100%;
+    overflow-x: hidden;
+}
+
+body {
+    background-color: #f4f6f9;
+    -webkit-font-smoothing: antialiased;
+}
+
+.text-muted {
+    color: #6c7686 !important;
+}
+
+/* ---------- Sidebar ---------- */
+
+.sidebar {
+    background-color: #ffffff;
+    border-right: 1px solid #e9ecf1;
+    width: 250px;
+}
+
+.sidebar-brand-icon {
+    width: 34px;
+    height: 34px;
+    border-radius: 0.6rem;
+    background-color: var(--brand-blue);
+    color: #fff;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.05rem;
+    flex-shrink: 0;
+}
+
+.sidebar-brand {
+    color: var(--brand-ink);
+}
+
+.sidebar .nav-link {
+    color: #5b6579 !important;
+    border-radius: 0.5rem;
+    font-size: 0.95rem;
+    font-weight: 500;
+    transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.sidebar .nav-link .nav-icon {
+    display: inline-flex;
+    width: 1.25rem;
+    justify-content: center;
+}
+
+.sidebar .nav-link:hover {
+    color: var(--brand-blue) !important;
+    background-color: var(--brand-blue-soft);
+}
+
+.sidebar .nav-link.active {
+    color: var(--brand-blue) !important;
+    background-color: var(--brand-blue-soft);
+    font-weight: 600;
+}
+
+.sidebar .nav-link.disabled {
+    color: #adb3bf !important;
+    pointer-events: none;
+}
+
+.sidebar .nav-link.disabled .badge-soon {
+    margin-left: auto;
+}
+
+.sidebar-scroll {
+    overflow-y: auto;
+    flex: 1 1 auto;
+}
+
+.sidebar-subnav {
+    margin-bottom: 0.25rem;
+}
+
+.sidebar-subnav .nav-link {
+    font-size: 0.85rem;
+    padding-top: 0.4rem;
+    padding-bottom: 0.4rem;
+}
+
+/* Larger screens: sidebar becomes a static, full-height column */
+@media (min-width: 992px) {
+    .sidebar {
+        position: sticky;
+        top: 0;
+        height: 100vh;
+    }
+}
+
+/* ---------- Topbar ---------- */
+
+.topbar-title {
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+.avatar-badge {
+    width: 32px;
+    height: 32px;
+    font-weight: 600;
+    flex-shrink: 0;
+}
+
+/* ---------- Login ---------- */
+
+.login-page {
+    background: linear-gradient(180deg, #eef3fc 0%, #f4f6f9 55%);
+}
+
+.login-card {
+    width: 100%;
+    max-width: 400px;
+    min-width: 0;
+    border-radius: var(--bs-border-radius-xl);
+}
+
+.login-brand-icon {
+    width: 56px;
+    height: 56px;
+    font-size: 1.6rem;
+    border-radius: 1rem;
+}
+
+/* ---------- Buttons ---------- */
+
+.btn-accent {
+    background-color: var(--brand-accent);
+    border-color: var(--brand-accent);
+    color: #fff;
+}
+
+.btn-accent:hover,
+.btn-accent:focus {
+    background-color: var(--brand-accent-dark);
+    border-color: var(--brand-accent-dark);
+    color: #fff;
+}
+
+/* ---------- Stat & quick-action cards ---------- */
+
+.stat-icon {
+    width: 38px;
+    height: 38px;
+    border-radius: 0.65rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    flex-shrink: 0;
+}
+
+@media (min-width: 768px) {
+    .stat-icon {
+        width: 42px;
+        height: 42px;
+        font-size: 1.1rem;
+    }
+}
+
+.stat-card .card-body,
+.quick-action-card .card-body {
+    padding: 0.75rem 0.9rem;
+}
+
+@media (min-width: 768px) {
+    .stat-card .card-body,
+    .quick-action-card .card-body {
+        padding: 0.9rem 1.1rem;
+    }
+}
+
+.stat-card {
+    transition: box-shadow 0.15s ease;
+}
+
+.stat-tile-label {
+    color: var(--viz-text-secondary);
+    font-size: 0.8rem;
+}
+
+.stat-tile-value {
+    font-weight: 600;
+    font-variant-numeric: proportional-nums;
+    overflow-wrap: break-word;
+}
+
+/* Every stat tile follows the same markup: a fixed-size .stat-icon followed
+   by a text block with the label/value. That text block never sets its own
+   min-width, so on narrow columns (col-6 stat tiles) long currency values
+   like "P125,000.00" — one unbreakable token — push past the card edge
+   instead of wrapping. Target the structural sibling pattern once instead
+   of editing every call site. */
+.stat-icon + div,
+.stat-tile-text {
+    min-width: 0;
+}
+
+.quick-action-card {
+    cursor: pointer;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.quick-action-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1) !important;
+}
+
+.quick-action-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.85rem 0.5rem;
+    border-radius: var(--bs-border-radius);
+    border: 1px solid var(--bs-border-color);
+    background-color: #fff;
+    font-weight: 600;
+    font-size: 0.85rem;
+    color: var(--viz-text-primary);
+    transition: box-shadow 0.15s ease, transform 0.15s ease;
+}
+
+.quick-action-btn:hover {
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.08);
+    transform: translateY(-2px);
+}
+
+.quick-action-btn .qa-icon {
+    font-size: 1.4rem;
+}
+
+.main-content {
+    min-height: 100vh;
+}
+
+/* ---------- Module tabs (sub-modules within a module group) ---------- */
+
+.module-tabs {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+}
+
+.module-tabs .nav-item {
+    flex: 0 0 auto;
+}
+
+.module-tabs .nav-link {
+    white-space: nowrap;
+    color: #5b6579;
+}
+
+.module-tabs .nav-link.active {
+    color: var(--brand-blue);
+    font-weight: 600;
+    border-color: var(--bs-border-color) var(--bs-border-color) #fff;
+}
+
+/* ---------- Calendar ---------- */
+
+.calendar-scroll {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.calendar-grid-inner {
+    min-width: 560px;
+}
+
+/* ---------- Views ---------- */
+
+.app-view {
+    animation: fade-in 0.2s ease;
+}
+
+@keyframes fade-in {
+    from {
+        opacity: 0;
+        transform: translateY(4px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ---------- Forms ---------- */
+
+.required-marker {
+    color: var(--bs-danger);
+}
+
+/* ---------- Toasts ---------- */
+
+.toast-container {
+    z-index: 1090;
+}
+
+.toast-icon {
+    font-size: 1.1rem;
+    line-height: 1;
+}
+
+/* ---------- Resident photo avatar ---------- */
+
+.resident-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background-color: var(--bs-primary-bg-subtle);
+    color: var(--bs-primary-text-emphasis);
+    font-weight: 600;
+    font-size: 0.8rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+/* ---------- Sector / status tags ---------- */
+
+.sector-tag {
+    font-weight: 500;
+}
+
+/* ---------- Mobile-first responsive table ---------- */
+/* Stacked "cards" by default, real table from md up */
+
+.table-stack tbody tr {
+    display: block;
+    border: 1px solid var(--bs-border-color);
+    border-radius: 0.5rem;
+    margin-bottom: 0.75rem;
+    padding: 0.5rem 0.75rem;
+}
+
+.table-stack thead {
+    display: none;
+}
+
+.table-stack td {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.75rem;
+    text-align: right;
+    border: none;
+    padding: 0.4rem 0;
+}
+
+.table-stack td::before {
+    content: attr(data-label);
+    font-weight: 600;
+    color: #6c757d;
+    text-align: left;
+}
+
+.table-stack td.actions-cell {
+    justify-content: flex-end;
+    flex-wrap: wrap;
+}
+
+.table-stack td.actions-cell::before {
+    content: none;
+}
+
+@media (min-width: 768px) {
+    .table-stack thead {
+        display: table-header-group;
+    }
+
+    .table-stack tbody tr {
+        display: table-row;
+        border: none;
+        margin-bottom: 0;
+        padding: 0;
+    }
+
+    .table-stack td {
+        display: table-cell;
+        text-align: inherit;
+        border-top: 1px solid var(--bs-border-color);
+        padding: 0.75rem;
+    }
+
+    .table-stack td::before {
+        content: none;
+    }
+}
+
+/* ==================================================================
+   Data-viz components (custom, dependency-free charts)
+   Colors below reference the validated --viz-* roles only; UI chrome
+   (cards, buttons, nav) uses the brand palette instead.
+   ================================================================== */
+
+.viz-card-title {
+    font-weight: 600;
+    color: var(--viz-text-primary);
+}
+
+.viz-card-subtitle {
+    color: var(--viz-text-secondary);
+    font-size: 0.8rem;
+}
+
+/* ---- Stacked bar (gender distribution) ---- */
+
+.stacked-bar {
+    display: flex;
+    width: 100%;
+    height: 28px;
+    border-radius: 999px;
+    overflow: hidden;
+    background-color: var(--viz-gridline);
+}
+
+.stacked-bar-segment {
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-size: 0.72rem;
+    font-weight: 600;
+    min-width: 2px;
+}
+
+.stacked-bar-segment + .stacked-bar-segment {
+    border-left: 2px solid var(--viz-surface);
+}
+
+.viz-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem 1.25rem;
+    margin-top: 0.75rem;
+}
+
+.viz-legend-item {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.82rem;
+    color: var(--viz-text-secondary);
+}
+
+.viz-legend-swatch {
+    width: 10px;
+    height: 10px;
+    border-radius: 3px;
+    flex-shrink: 0;
+}
+
+.viz-legend-value {
+    color: var(--viz-text-primary);
+    font-weight: 600;
+}
+
+/* ---- Column chart (registration trend) ---- */
+
+.column-chart {
+    display: flex;
+    align-items: flex-end;
+    gap: 0.5rem;
+    height: 96px;
+    padding-top: 0.75rem;
+    border-bottom: 1px solid var(--viz-baseline);
+}
+
+.column-chart-col {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-end;
+    height: 100%;
+    gap: 0.35rem;
+    position: relative;
+}
+
+.column-chart-value {
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: var(--viz-text-primary);
+}
+
+.column-chart-bar {
+    width: 22px;
+    max-width: 24px;
+    background-color: var(--viz-blue);
+    border-radius: 4px 4px 0 0;
+    min-height: 3px;
+}
+
+.column-chart-label {
+    font-size: 0.72rem;
+    color: var(--viz-text-muted);
+    margin-top: 0.35rem;
+}
+
+/* ---- Horizontal bar list (purok density) ---- */
+
+.hbar-row {
+    display: grid;
+    grid-template-columns: 76px 1fr 36px;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.32rem;
+}
+
+.hbar-row:last-child {
+    margin-bottom: 0;
+}
+
+.hbar-label {
+    font-size: 0.76rem;
+    color: var(--viz-text-secondary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.hbar-track {
+    height: 8px;
+    border-radius: 4px;
+    background-color: var(--viz-gridline);
+    overflow: hidden;
+}
+
+.hbar-fill {
+    height: 100%;
+    background-color: var(--viz-blue);
+    border-radius: 6px;
+    min-width: 4px;
+}
+
+.hbar-value {
+    font-size: 0.74rem;
+    font-weight: 600;
+    color: var(--viz-text-primary);
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+}
+
+/* ---- Line chart (revenue summary) ---- */
+
+.line-chart-wrap {
+    width: 100%;
+}
+
+.line-chart-wrap svg {
+    width: 100%;
+    height: auto;
+    display: block;
+    overflow: visible;
+}
+
+.line-chart-gridline {
+    stroke: var(--viz-gridline);
+    stroke-width: 1;
+}
+
+.line-chart-path {
+    fill: none;
+    stroke: var(--viz-blue);
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.line-chart-area {
+    fill: var(--viz-blue);
+    opacity: 0.1;
+    stroke: none;
+}
+
+.line-chart-dot {
+    fill: var(--viz-blue);
+    stroke: var(--viz-surface);
+    stroke-width: 2;
+}
+
+.line-chart-labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.7rem;
+    color: var(--viz-text-muted);
+    margin-top: 0.35rem;
+}
+
+/* ---- Status badge (state — icon + label, never color alone) ---- */
+
+.status-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.2rem 0.6rem;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.status-pill.status-good {
+    background-color: rgba(12, 163, 12, 0.12);
+    color: #086b08;
+}
+
+.status-pill.status-warning {
+    background-color: rgba(250, 178, 25, 0.18);
+    color: #7a5200;
+}
+
+.status-pill.status-critical {
+    background-color: rgba(208, 59, 59, 0.12);
+    color: #a32323;
+}
+
+.status-pill.status-serious {
+    background-color: rgba(236, 131, 90, 0.16);
+    color: #a3441f;
+}
+
+/* ---- Zone density mini legend swatches ---- */
+
+.zone-swatch {
+    width: 12px;
+    height: 12px;
+    border-radius: 3px;
+    display: inline-block;
+}
