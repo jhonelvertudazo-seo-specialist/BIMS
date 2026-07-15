@@ -490,6 +490,21 @@ body {
    ever uses display:block, which every browser handles identically, so
    the label sits above its value instead of beside it. */
 
+/* Every .table-stack is wrapped in Bootstrap's .table-responsive for the
+   real-table desktop view, which needs horizontal scroll on wide tables.
+   Setting only overflow-x makes browsers compute overflow-y as auto too
+   (a CSS spec quirk: "one axis auto/scroll/hidden forces the other off
+   visible"), which can clip the Actions dropdown menu — especially on a
+   card near the bottom of the list, where the menu has nowhere to open
+   except past the container's edge. Below tablet width there's no wide
+   table needing horizontal scroll anyway (rows are already stacked full
+   width), so remove the clipping there entirely. */
+@media (max-width: 767.98px) {
+    .table-responsive {
+        overflow: visible;
+    }
+}
+
 .table-stack {
     width: 100%;
     max-width: 100%;
