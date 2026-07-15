@@ -354,6 +354,27 @@ body {
     border-color: var(--bs-border-color) var(--bs-border-color) #fff;
 }
 
+/* ---------- Horizontally-scrolling tab bars (mobile-friendly) ---------- */
+/* Generic version of .module-tabs' scroll behavior for any other Nav/Tabs
+   bar that can have more tabs than fit on a narrow screen (Certificate
+   Management's per-type tabs, Reports & Analytics). Without this,
+   Bootstrap's default nav wraps onto multiple ragged lines instead of
+   scrolling, which looks broken/cramped on mobile. */
+.scroll-tabs {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+}
+
+.scroll-tabs .nav-item {
+    flex: 0 0 auto;
+}
+
+.scroll-tabs .nav-link {
+    white-space: nowrap;
+}
+
 /* ---------- Calendar ---------- */
 
 .calendar-scroll {

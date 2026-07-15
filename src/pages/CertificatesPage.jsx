@@ -117,7 +117,7 @@ export default function CertificatesPage() {
                 </div>
             </div>
 
-            <Nav variant="tabs" className="mb-3" activeKey={activeTab} onSelect={(key) => setActiveTab(key || '')}>
+            <Nav variant="tabs" className="mb-3 scroll-tabs" activeKey={activeTab} onSelect={(key) => setActiveTab(key || '')}>
                 <Nav.Item>
                     <Nav.Link eventKey="">All ({visibleCertificates.length})</Nav.Link>
                 </Nav.Item>

@@ -92,7 +92,7 @@ export default function ReportsPage() {
                     <p className="text-muted small mb-0">Cross-module reporting and data export</p>
                 </div>
                 <div className="card-body">
-                    <Tabs defaultActiveKey="population" className="mb-3">
+                    <Tabs defaultActiveKey="population" className="mb-3 scroll-tabs">
                         <Tab eventKey="population" title="Population">
                             <div className="row g-3">
                                 <div className="col-12 col-md-4">
