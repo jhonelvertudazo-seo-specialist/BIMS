@@ -12,7 +12,7 @@ import {
 const EMPTY_FORM = {
     firstName: '', middleName: '', lastName: '', suffix: '',
     gender: '', birthDate: '', birthPlace: '', nationality: 'Filipino', religion: '',
-    purok: '', sitio: '', address: '', district: '', pollingPlace: '', precinctNumber: '',
+    purok: '', householdId: '', sitio: '', address: '', district: '', pollingPlace: '', precinctNumber: '',
     civilStatus: '', sector: '', employmentStatus: 'Employed', occupation: '', employer: '',
     monthlyIncome: '', educationalAttainment: '',
     contact: '', email: '', registeredVoter: false,
@@ -21,7 +21,7 @@ const EMPTY_FORM = {
 };
 
 export default function ResidentFormModal() {
-    const { residents, addResident, updateResident } = useData();
+    const { residents, households, addResident, updateResident } = useData();
     const { residentModal, closeResidentModal, showToast } = useUI();
     const { user } = useAuth();
     const [form, setForm] = useState(EMPTY_FORM);
@@ -36,10 +36,19 @@ export default function ResidentFormModal() {
         setValidated(false);
         setPhotoFile(null);
         if (editingResident) {
+            // Residents registered before names were split into separate
+            // columns have firstName/lastName as null in the DB even
+            // though fullName is populated. Fall back to splitting
+            // fullName so the edit form doesn't show blank name fields
+            // for those older records (see migration 0013 for the
+            // one-time DB backfill of this same data).
+            const [fallbackFirst, ...fallbackRest] = (editingResident.fullName || '').trim().split(/\s+/).filter(Boolean);
+            const fallbackLast = fallbackRest.length ? fallbackRest[fallbackRest.length - 1] : '';
+
             setForm({
-                firstName: editingResident.firstName || '',
+                firstName: editingResident.firstName || fallbackFirst || '',
                 middleName: editingResident.middleName || '',
-                lastName: editingResident.lastName || '',
+                lastName: editingResident.lastName || fallbackLast || '',
                 suffix: editingResident.suffix || '',
                 gender: editingResident.gender,
                 birthDate: editingResident.birthDate,
@@ -47,6 +56,7 @@ export default function ResidentFormModal() {
                 nationality: editingResident.nationality || 'Filipino',
                 religion: editingResident.religion || '',
                 purok: editingResident.purok,
+                householdId: editingResident.householdId || '',
                 sitio: editingResident.sitio || '',
                 address: editingResident.address || '',
                 district: editingResident.district || '',
@@ -137,7 +147,7 @@ export default function ResidentFormModal() {
                     <Modal.Title>{editingResident ? 'Edit Resident Profile' : 'Register New Resident'}</Modal.Title>
                 </Modal.Header>
 
-                <Modal.Body>
+                <Modal.Body style={{ maxHeight: '70vh', overflowY: 'auto' }}>
                     <h6 className="text-muted text-uppercase small fw-bold mb-2">Personal Information</h6>
                     <div className="row g-3 mb-3">
                         <div className="col-12 col-md-4">
@@ -245,6 +255,18 @@ export default function ResidentFormModal() {
                                 <Form.Control placeholder="e.g. 123 Mabini St." value={form.address} onChange={(e) => updateField('address', e.target.value)} />
                             </Form.Group>
                         </div>
+                        <div className="col-12 col-md-6">
+                            <Form.Group controlId="residentHousehold">
+                                <Form.Label>Household</Form.Label>
+                                <Form.Select value={form.householdId} onChange={(e) => updateField('householdId', e.target.value)}>
+                                    <option value="">Not linked to a household</option>
+                                    {households.map((h) => (
+                                        <option key={h.id} value={h.id}>{h.householdNo} — {h.headOfFamily}{h.address ? ` (${h.address})` : ''}</option>
+                                    ))}
+                                </Form.Select>
+                                <Form.Text className="text-muted">Linking this resident lets household member counts update automatically.</Form.Text>
+                            </Form.Group>
+                        </div>
                         <div className="col-6 col-md-4">
                             <Form.Group controlId="residentDistrict">
                                 <Form.Label>District</Form.Label>
@@ -348,35 +370,38 @@ export default function ResidentFormModal() {
                     </div>
 
                     <h6 className="text-muted text-uppercase small fw-bold mb-2">Government IDs</h6>
+                    {editingResident && (
+                        <p className="text-muted small mb-2">Government ID numbers are locked after registration. Contact a system administrator if a correction is needed.</p>
+                    )}
                     <div className="row g-3">
                         <div className="col-6 col-md-2">
                             <Form.Group controlId="residentPhilsys">
                                 <Form.Label>PhilSys No.</Form.Label>
-                                <Form.Control value={form.philsysNo} onChange={(e) => updateField('philsysNo', e.target.value)} />
+                                <Form.Control value={form.philsysNo} onChange={(e) => updateField('philsysNo', e.target.value)} readOnly={!!editingResident} disabled={!!editingResident} />
                             </Form.Group>
                         </div>
                         <div className="col-6 col-md-2">
                             <Form.Group controlId="residentPhilhealth">
                                 <Form.Label>PhilHealth No.</Form.Label>
-                                <Form.Control value={form.philhealthNo} onChange={(e) => updateField('philhealthNo', e.target.value)} />
+                                <Form.Control value={form.philhealthNo} onChange={(e) => updateField('philhealthNo', e.target.value)} readOnly={!!editingResident} disabled={!!editingResident} />
                             </Form.Group>
                         </div>
                         <div className="col-6 col-md-2">
                             <Form.Group controlId="residentSss">
                                 <Form.Label>SSS No.</Form.Label>
-                                <Form.Control value={form.sssNo} onChange={(e) => updateField('sssNo', e.target.value)} />
+                                <Form.Control value={form.sssNo} onChange={(e) => updateField('sssNo', e.target.value)} readOnly={!!editingResident} disabled={!!editingResident} />
                             </Form.Group>
                         </div>
                         <div className="col-6 col-md-3">
                             <Form.Group controlId="residentPagibig">
                                 <Form.Label>Pag-IBIG No.</Form.Label>
-                                <Form.Control value={form.pagibigNo} onChange={(e) => updateField('pagibigNo', e.target.value)} />
+                                <Form.Control value={form.pagibigNo} onChange={(e) => updateField('pagibigNo', e.target.value)} readOnly={!!editingResident} disabled={!!editingResident} />
                             </Form.Group>
                         </div>
                         <div className="col-6 col-md-3">
                             <Form.Group controlId="residentTin">
                                 <Form.Label>TIN</Form.Label>
-                                <Form.Control value={form.tin} onChange={(e) => updateField('tin', e.target.value)} />
+                                <Form.Control value={form.tin} onChange={(e) => updateField('tin', e.target.value)} readOnly={!!editingResident} disabled={!!editingResident} />
                             </Form.Group>
                         </div>
                     </div>

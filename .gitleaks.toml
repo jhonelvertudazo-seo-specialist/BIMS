@@ -1,0 +1,14 @@
+title = "BIMS gitleaks config"
+
+[extend]
+useDefault = true
+
+# credentials.txt is a known, pre-existing exposure (tracked since the repo's
+# first commit) that the project owner has chosen to rotate/handle
+# separately rather than scrub from this pass. Excluding it here so CI can
+# actually catch *new* secrets going forward instead of failing on this one
+# forever. See the audit notes for the required key-rotation follow-up.
+[allowlist]
+paths = [
+    '''credentials\.txt''',
+]

@@ -14,6 +14,7 @@ import LineChart from '../components/charts/LineChart.jsx';
 import RecentTransactions from '../components/dashboard/RecentTransactions.jsx';
 import BlotterOverviewCard from '../components/dashboard/BlotterOverviewCard.jsx';
 import PermitMonitoringCard from '../components/dashboard/PermitMonitoringCard.jsx';
+import SystemAlertsCard from '../components/dashboard/SystemAlertsCard.jsx';
 import LoadingSpinner from '../components/common/LoadingSpinner.jsx';
 import { calculateAge, formatCurrency, nameFromEmail } from '../utils/format.js';
 import { buildLast6MonthsTrend, buildRevenueTrend, buildZoneDensity } from '../utils/dashboardStats.js';
@@ -64,6 +65,12 @@ export default function DashboardPage() {
             <div className="mb-4">
                 <h4 className="mb-1">Welcome back, {firstName} 👋</h4>
                 <p className="text-muted mb-0">{dashboardDate}</p>
+            </div>
+
+            <div className="row g-3 mb-4">
+                <div className="col-12">
+                    <SystemAlertsCard />
+                </div>
             </div>
 
             <h6 className="text-uppercase text-muted small fw-bold mb-2">Population Profile</h6>
@@ -131,7 +138,7 @@ export default function DashboardPage() {
                 </div>
             </div>
 
-            <div className="row g-2 mb-4">
+            {/* <div className="row g-2 mb-4">
                 <div className="col-4">
                     <button type="button" className="quick-action-btn w-100" onClick={openAddResident}>
                         <span className="qa-icon">👤</span> New Resident
@@ -147,7 +154,7 @@ export default function DashboardPage() {
                         <span className="qa-icon">📁</span> File Blotter
                     </button>
                 </div>
-            </div>
+            </div> */}
 
             <div className="row g-3 mb-4">
                 <div className="col-12 col-lg-7">

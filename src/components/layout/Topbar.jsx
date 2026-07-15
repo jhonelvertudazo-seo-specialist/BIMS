@@ -4,11 +4,14 @@ import { useAuth } from '../../context/AuthContext.jsx';
 import { initials, nameFromEmail } from '../../utils/format.js';
 import { PAGE_TITLES } from '../../utils/pageTitles.js';
 import { findBreadcrumb } from '../../utils/navTree.js';
+import { useTheme } from '../../hooks/useTheme.js';
+import GlobalSearch from './GlobalSearch.jsx';
 
 export default function Topbar({ onToggleSidebar }) {
     const location = useLocation();
     const navigate = useNavigate();
     const { user, signOut } = useAuth();
+    const { theme, toggleTheme } = useTheme();
     const match = findBreadcrumb(location.pathname);
     const title = match?.leaf || PAGE_TITLES[location.pathname] || 'Dashboard';
     const displayName = nameFromEmail(user?.email);
@@ -28,9 +31,20 @@ export default function Topbar({ onToggleSidebar }) {
             >
                 ☰
             </button>
-            <span className="navbar-brand mb-0 h5 text-truncate topbar-title">{title}</span>
+            <span className="navbar-brand mb-0 h5 text-truncate topbar-title d-none d-md-inline">{title}</span>
 
-            <div className="d-flex align-items-center gap-3 ms-auto flex-shrink-0">
+            <GlobalSearch />
+
+            <div className="d-flex align-items-center gap-2 ms-auto flex-shrink-0">
+                <button
+                    type="button"
+                    className="btn btn-outline-secondary"
+                    onClick={toggleTheme}
+                    aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+                    title={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+                >
+                    {theme === 'dark' ? '☀️' : '🌙'}
+                </button>
                 <Dropdown align="end" popperConfig={{ strategy: 'fixed' }}>
                     <Dropdown.Toggle as="button" className="btn btn-light d-flex align-items-center gap-2 border">
                         <span className="avatar-badge rounded-circle bg-primary text-white d-inline-flex align-items-center justify-content-center">

@@ -2,31 +2,40 @@ import { useEffect, useMemo, useState } from 'react';
 import { Modal, Form, Button } from 'react-bootstrap';
 import { useData } from '../../context/DataContext.jsx';
 import { useUI } from '../../context/UIContext.jsx';
+import { useAuth } from '../../context/AuthContext.jsx';
 import { CERTIFICATE_TYPES } from '../../utils/constants.js';
-import { formatCurrency } from '../../utils/format.js';
+import { moduleKeyForCertificateType } from '../../lib/certificateModules.js';
 
-const EMPTY_FORM = { residentId: '', type: '', purpose: '' };
+const EMPTY_FORM = { residentId: '', type: '', purpose: '', fee: '' };
 
 export default function CertificateFormModal() {
     const { residents, issueCertificate } = useData();
-    const { certificateModalOpen, closeCertificateModal, showToast } = useUI();
+    const { certificateModalOpen, certificateModalInitialType, closeCertificateModal, showToast } = useUI();
+    const { can } = useAuth();
     const [form, setForm] = useState(EMPTY_FORM);
     const [validated, setValidated] = useState(false);
     const [submitting, setSubmitting] = useState(false);
 
     useEffect(() => {
         if (certificateModalOpen) {
-            setForm(EMPTY_FORM);
+            setForm({ ...EMPTY_FORM, type: certificateModalInitialType || '' });
             setValidated(false);
         }
-    }, [certificateModalOpen]);
+    }, [certificateModalOpen, certificateModalInitialType]);
 
     const sortedResidents = useMemo(
         () => [...residents].sort((a, b) => a.fullName.localeCompare(b.fullName)),
         [residents]
     );
-    const selectedType = CERTIFICATE_TYPES.find((t) => t.type === form.type);
-    const fee = selectedType ? selectedType.fee : 0;
+
+    // Defense-in-depth: even if this modal were ever opened without a
+    // pre-selected type (e.g. a future "Issue Certificate" quick action
+    // that doesn't specify one), only offer types this user is actually
+    // permitted to issue.
+    const selectableTypes = useMemo(
+        () => CERTIFICATE_TYPES.filter((t) => can(moduleKeyForCertificateType(t), 'add')),
+        [can]
+    );
 
     async function handleSubmit(event) {
         const formEl = event.currentTarget;
@@ -40,7 +49,12 @@ export default function CertificateFormModal() {
 
         setSubmitting(true);
         try {
-            await issueCertificate({ residentId: form.residentId, type: form.type, fee, purpose: form.purpose.trim() });
+            await issueCertificate({
+                residentId: form.residentId,
+                type: form.type,
+                fee: Number(form.fee) || 0,
+                purpose: form.purpose.trim(),
+            });
             showToast('Certificate issued.');
             setValidated(false);
             closeCertificateModal();
@@ -71,13 +85,22 @@ export default function CertificateFormModal() {
 
                     <Form.Group className="mb-3" controlId="certificateType">
                         <Form.Label>Certificate Type <span className="required-marker">*</span></Form.Label>
-                        <Form.Select required value={form.type} onChange={(e) => setForm((p) => ({ ...p, type: e.target.value }))}>
-                            <option value="">Select type</option>
-                            {CERTIFICATE_TYPES.map((t) => (
-                                <option key={t.type} value={t.type}>{t.type} — {formatCurrency(t.fee)}</option>
-                            ))}
-                        </Form.Select>
-                        <Form.Control.Feedback type="invalid">Please select a certificate type.</Form.Control.Feedback>
+                        {certificateModalInitialType ? (
+                            <>
+                                <Form.Control type="text" readOnly value={form.type} />
+                                <Form.Text className="text-muted">Set by the tab you issued this from.</Form.Text>
+                            </>
+                        ) : (
+                            <>
+                                <Form.Select required value={form.type} onChange={(e) => setForm((p) => ({ ...p, type: e.target.value }))}>
+                                    <option value="">Select type</option>
+                                    {selectableTypes.map((t) => (
+                                        <option key={t} value={t}>{t}</option>
+                                    ))}
+                                </Form.Select>
+                                <Form.Control.Feedback type="invalid">Please select a certificate type.</Form.Control.Feedback>
+                            </>
+                        )}
                     </Form.Group>
 
                     <Form.Group className="mb-3" controlId="certificatePurpose">
@@ -90,9 +113,19 @@ export default function CertificateFormModal() {
                         />
                     </Form.Group>
 
-                    <Form.Group controlId="certificateFeeDisplay">
-                        <Form.Label>Fee</Form.Label>
-                        <Form.Control type="text" readOnly value={formatCurrency(fee)} />
+                    <Form.Group controlId="certificateFee">
+                        <Form.Label>Fee <span className="required-marker">*</span></Form.Label>
+                        <Form.Control
+                            type="number"
+                            min="0"
+                            step="0.01"
+                            required
+                            placeholder="Enter the amount to charge for this certificate"
+                            value={form.fee}
+                            onChange={(e) => setForm((p) => ({ ...p, fee: e.target.value }))}
+                        />
+                        <Form.Control.Feedback type="invalid">Please enter the fee for this certificate.</Form.Control.Feedback>
+                        <Form.Text className="text-muted">No default amount — set the fee for this specific certificate.</Form.Text>
                     </Form.Group>
                 </Modal.Body>
                 <Modal.Footer>

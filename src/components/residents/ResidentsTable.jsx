@@ -1,9 +1,10 @@
 import { Dropdown } from 'react-bootstrap';
 import { useUI } from '../../context/UIContext.jsx';
 import { useAuth } from '../../context/AuthContext.jsx';
-import { formatDate, initials } from '../../utils/format.js';
+import { formatDate, formatCurrency, initials } from '../../utils/format.js';
 import SectorBadge from '../common/SectorBadge.jsx';
-import { openInMaps } from '../../utils/actions.js';
+import { openInMaps, printDocument } from '../../utils/actions.js';
+import { generateBarcodeDataUrl } from '../../utils/barcode.js';
 
 function handleContact(resident, showToast) {
     if (resident.contact) {
@@ -18,6 +19,31 @@ function handleMapGIS(resident, showToast) {
     if (!openInMaps(query)) {
         showToast('No address on file for this resident.', true);
     }
+}
+
+function handlePrint(resident) {
+    printDocument(`Resident Profile — ${resident.residentId}`, `
+        <h1>Resident Profile</h1>
+        <h2>Barangay Information and Management System</h2>
+        <table>
+            <tr><td class="label">Resident ID</td><td class="value">${resident.residentId}</td></tr>
+            <tr><td class="label">Full Name</td><td class="value">${resident.fullName}</td></tr>
+            <tr><td class="label">Gender</td><td class="value">${resident.gender || '—'}</td></tr>
+            <tr><td class="label">Birth Date</td><td class="value">${resident.birthDate ? formatDate(resident.birthDate) : '—'}</td></tr>
+            <tr><td class="label">Address</td><td class="value">${resident.purok || ''}${resident.address ? ` — ${resident.address}` : ''}</td></tr>
+            <tr><td class="label">Civil Status</td><td class="value">${resident.civilStatus || '—'}</td></tr>
+            <tr><td class="label">Sector</td><td class="value">${resident.sector || '—'}</td></tr>
+            <tr><td class="label">Occupation</td><td class="value">${resident.occupation || '—'}</td></tr>
+            <tr><td class="label">Employment Status</td><td class="value">${resident.employmentStatus || '—'}</td></tr>
+            <tr><td class="label">Monthly Income</td><td class="value">${resident.monthlyIncome ? formatCurrency(resident.monthlyIncome) : '—'}</td></tr>
+            <tr><td class="label">Contact Number</td><td class="value">${resident.contact || '—'}</td></tr>
+            <tr><td class="label">Registered Voter</td><td class="value">${resident.registeredVoter ? 'Yes' : 'No'}</td></tr>
+        </table>
+        ${(() => {
+            const barcode = generateBarcodeDataUrl(resident.residentId);
+            return barcode ? `<div style="text-align:center;margin-top:1rem;"><img src="${barcode}" alt="Barcode ${resident.residentId}" style="height:45px;" /></div>` : '';
+        })()}
+    `);
 }
 
 export default function ResidentsTable({ residents }) {
@@ -70,6 +96,7 @@ export default function ResidentsTable({ residents }) {
                                     {canEdit && <Dropdown.Item onClick={() => openEditResident(r.id)}>✏️ Edit Profile</Dropdown.Item>}
                                     <Dropdown.Item onClick={() => handleContact(r, showToast)}>📞 Contact</Dropdown.Item>
                                     <Dropdown.Item onClick={() => handleMapGIS(r, showToast)}>📍 Map GIS</Dropdown.Item>
+                                    <Dropdown.Item onClick={() => handlePrint(r)}>🖨️ Print</Dropdown.Item>
                                     {canDelete && (
                                         <>
                                             <Dropdown.Divider />

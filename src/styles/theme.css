@@ -155,6 +155,49 @@ body {
     flex-shrink: 0;
 }
 
+/* ---------- Global search ---------- */
+
+.global-search {
+    width: 320px;
+    max-width: 32vw;
+}
+
+.global-search-results {
+    position: absolute;
+    top: calc(100% + 0.25rem);
+    left: 0;
+    right: 0;
+    z-index: 1050;
+    background: var(--bs-body-bg);
+    border: 1px solid var(--bs-border-color);
+    border-radius: var(--bs-border-radius);
+    max-height: 360px;
+    overflow-y: auto;
+}
+
+.global-search-group-label {
+    padding: 0.4rem 0.85rem 0.15rem;
+    font-size: 0.68rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--viz-text-muted);
+}
+
+.global-search-result {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    width: 100%;
+    padding: 0.4rem 0.85rem;
+    border: none;
+    background: transparent;
+    text-align: left;
+}
+
+.global-search-result:hover {
+    background-color: var(--brand-blue-soft);
+}
+
 /* ---------- Login ---------- */
 
 .login-page {
@@ -683,4 +726,91 @@ body {
     height: 12px;
     border-radius: 3px;
     display: inline-block;
+}
+
+/* ==================================================================
+   Dark mode — layered on top of Bootstrap 5.3's built-in data-bs-theme
+   support (cards/tables/modals/forms/dropdowns adapt automatically via
+   Bootstrap's own CSS vars). Only the custom, non-Bootstrap chrome below
+   needs explicit dark overrides.
+   ================================================================== */
+
+[data-bs-theme="dark"] {
+    --viz-surface: #1e293b;
+    --viz-text-primary: #e7e9ee;
+    --viz-text-secondary: #b6bcc9;
+    --viz-text-muted: #8891a3;
+    --viz-gridline: #334155;
+    --viz-baseline: #475569;
+}
+
+[data-bs-theme="dark"] body {
+    background-color: #0f172a;
+}
+
+[data-bs-theme="dark"] .text-muted {
+    color: #9aa3b5 !important;
+}
+
+[data-bs-theme="dark"] .sidebar {
+    background-color: #111827;
+    border-right-color: #1f2937;
+}
+
+[data-bs-theme="dark"] .sidebar .nav-link {
+    color: #b6bcc9 !important;
+}
+
+[data-bs-theme="dark"] .sidebar .nav-link.disabled {
+    color: #5b6579 !important;
+}
+
+[data-bs-theme="dark"] .login-page {
+    background: linear-gradient(180deg, #0f172a 0%, #0b1120 55%);
+}
+
+[data-bs-theme="dark"] .quick-action-btn {
+    background-color: #1e293b;
+    border-color: #334155;
+    color: var(--viz-text-primary);
+}
+
+[data-bs-theme="dark"] .module-tabs .nav-link.active {
+    border-color: var(--bs-border-color) var(--bs-border-color) var(--bs-body-bg);
+}
+
+[data-bs-theme="dark"] .global-search-results {
+    background-color: #1e293b;
+}
+
+[data-bs-theme="dark"] .table-stack td::before {
+    color: #9aa3b5;
+}
+
+/* .bg-white is a Bootstrap "always white" utility (like .bg-black), not a
+   theme-aware one — it's used all over the app (card headers, navbar,
+   search inputs) to mean "match the surrounding surface", so it needs an
+   explicit dark-mode override or its light/dark-adapted text sits on a
+   literal white box. */
+[data-bs-theme="dark"] .bg-white {
+    background-color: var(--bs-body-bg) !important;
+}
+
+/* .navbar-light hardcodes dark text/brand colors for a light navbar —
+   needed since Topbar.jsx pairs it with .bg-white, which we just made
+   dark above. */
+[data-bs-theme="dark"] .navbar-light {
+    --bs-navbar-color: rgba(255, 255, 255, 0.75);
+    --bs-navbar-hover-color: rgba(255, 255, 255, 0.9);
+    --bs-navbar-active-color: #fff;
+    --bs-navbar-brand-color: #fff;
+    --bs-navbar-brand-hover-color: #fff;
+}
+
+/* .table-light is a fixed light-gray table variant (like .table-dark),
+   not theme-aware — every table header in the app uses it. */
+[data-bs-theme="dark"] .table-light {
+    --bs-table-bg: #1e293b;
+    --bs-table-color: var(--viz-text-primary);
+    --bs-table-border-color: #334155;
 }

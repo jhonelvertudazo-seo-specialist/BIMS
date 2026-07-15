@@ -1,29 +1,23 @@
 import { Dropdown } from 'react-bootstrap';
 import { useUI } from '../../context/UIContext.jsx';
 import { useAuth } from '../../context/AuthContext.jsx';
+import { useData } from '../../context/DataContext.jsx';
 import { formatDate, formatCurrency } from '../../utils/format.js';
-import { printDocument } from '../../utils/actions.js';
+import { printCertificateDocument } from '../../utils/actions.js';
+import { moduleKeyForCertificateType } from '../../lib/certificateModules.js';
 
-function handlePrint(certificate) {
-    const dateStr = formatDate(new Date(certificate.issuedAt).toISOString());
-    printDocument(`${certificate.type} — ${certificate.referenceNo}`, `
-        <h1>${certificate.type}</h1>
-        <h2>Barangay Information and Management System</h2>
-        <table>
-            <tr><td class="label">Issued To</td><td class="value">${certificate.residentName}</td></tr>
-            <tr><td class="label">Purpose</td><td class="value">${certificate.purpose || '—'}</td></tr>
-            <tr><td class="label">Fee</td><td class="value">${formatCurrency(certificate.fee)}</td></tr>
-            <tr><td class="label">Reference No.</td><td class="value">${certificate.referenceNo}</td></tr>
-            <tr><td class="label">Date Issued</td><td class="value">${dateStr}</td></tr>
-        </table>
-        <div class="sign-line"><div class="line">Barangay Official Signature</div></div>
-    `);
+async function handlePrint(certificate, resident, showToast) {
+    try {
+        await printCertificateDocument(certificate, resident);
+    } catch (err) {
+        showToast(err.message || 'Failed to prepare certificate for printing.', true);
+    }
 }
 
 export default function CertificatesTable({ certificates }) {
-    const { openViewCertificate, openDeleteCertificate } = useUI();
+    const { openViewCertificate, openDeleteCertificate, showToast } = useUI();
+    const { residents } = useData();
     const { can } = useAuth();
-    const canDelete = can('certificates', 'delete');
 
     return (
         <table className="table table-hover align-middle mb-0 table-stack">
@@ -39,31 +33,34 @@ export default function CertificatesTable({ certificates }) {
                 </tr>
             </thead>
             <tbody>
-                {certificates.map((c) => (
-                    <tr key={c.id}>
-                        <td data-label="Date">{formatDate(new Date(c.issuedAt).toISOString())}</td>
-                        <td data-label="Type">{c.type}</td>
-                        <td data-label="Resident">{c.residentName}</td>
-                        <td data-label="Purpose">{c.purpose || '—'}</td>
-                        <td data-label="Fee">{formatCurrency(c.fee)}</td>
-                        <td data-label="Reference No.">{c.referenceNo}</td>
-                        <td className="actions-cell text-end">
-                            <Dropdown align="end" popperConfig={{ strategy: 'fixed' }}>
-                                <Dropdown.Toggle as="button" className="btn btn-sm btn-outline-secondary">Actions</Dropdown.Toggle>
-                                <Dropdown.Menu>
-                                    <Dropdown.Item onClick={() => openViewCertificate(c.id)}>👁️ View Details</Dropdown.Item>
-                                    <Dropdown.Item onClick={() => handlePrint(c)}>🖨️ Print</Dropdown.Item>
-                                    {canDelete && (
-                                        <>
-                                            <Dropdown.Divider />
-                                            <Dropdown.Item className="text-danger" onClick={() => openDeleteCertificate(c.id)}>🗑️ Delete</Dropdown.Item>
-                                        </>
-                                    )}
-                                </Dropdown.Menu>
-                            </Dropdown>
-                        </td>
-                    </tr>
-                ))}
+                {certificates.map((c) => {
+                    const canDeleteRow = can(moduleKeyForCertificateType(c.type), 'delete');
+                    return (
+                        <tr key={c.id}>
+                            <td data-label="Date">{formatDate(new Date(c.issuedAt).toISOString())}</td>
+                            <td data-label="Type">{c.type}</td>
+                            <td data-label="Resident">{c.residentName}</td>
+                            <td data-label="Purpose">{c.purpose || '—'}</td>
+                            <td data-label="Fee">{formatCurrency(c.fee)}</td>
+                            <td data-label="Reference No.">{c.referenceNo}</td>
+                            <td className="actions-cell text-end">
+                                <Dropdown align="end" popperConfig={{ strategy: 'fixed' }}>
+                                    <Dropdown.Toggle as="button" className="btn btn-sm btn-outline-secondary">Actions</Dropdown.Toggle>
+                                    <Dropdown.Menu>
+                                        <Dropdown.Item onClick={() => openViewCertificate(c.id)}>👁️ View Details</Dropdown.Item>
+                                        <Dropdown.Item onClick={() => handlePrint(c, residents.find((r) => r.id === c.residentId), showToast)}>🖨️ Print</Dropdown.Item>
+                                        {canDeleteRow && (
+                                            <>
+                                                <Dropdown.Divider />
+                                                <Dropdown.Item className="text-danger" onClick={() => openDeleteCertificate(c.id)}>🗑️ Delete</Dropdown.Item>
+                                            </>
+                                        )}
+                                    </Dropdown.Menu>
+                                </Dropdown>
+                            </td>
+                        </tr>
+                    );
+                })}
             </tbody>
         </table>
     );

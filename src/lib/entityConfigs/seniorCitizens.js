@@ -14,6 +14,18 @@ export const seniorCitizensConfig = {
     codePattern: /OSCA-(\d+)/,
     codePadLength: 4,
     lookups: [{ key: 'residents', source: 'context' }],
+    // Residents who look old enough for this registry but don't have a
+    // senior_citizens row yet — surfaced on the page itself (not just the
+    // Dashboard alert) so "no data" here isn't mistaken for a bug when
+    // it's really just "nobody has been registered yet".
+    getCandidates: (residents, items) => {
+        const registeredIds = new Set(items.map((i) => String(i.residentId)));
+        return (residents || []).filter((r) => {
+            if (registeredIds.has(String(r.id))) return false;
+            const age = calculateAge(r.birthDate);
+            return r.sector === 'Senior Citizen' || (age !== null && age >= 60);
+        });
+    },
     fields: [
         { key: 'residentId', label: 'Resident', type: 'lookup', lookup: 'residents', displayField: 'fullName', column: 'resident_id', required: true, col: 'col-12' },
         { key: 'oscaNumber', label: 'OSCA Number', type: 'text', auto: true },

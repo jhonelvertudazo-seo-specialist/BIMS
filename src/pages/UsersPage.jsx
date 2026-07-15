@@ -284,7 +284,7 @@ export default function UsersPage() {
                     </p>
                     <ol className="small ps-3">
                         <li className="mb-2">Create their login in the <strong>Supabase Dashboard → Authentication → Users → Add User</strong> (set an email and temporary password, or send them an invite link).</li>
-                        <li className="mb-2">Have them sign in to BIMS with that email/password. They'll appear right here with status <strong>Pending</strong>.</li>
+                        <li className="mb-2">Have them sign in to BIMS with that email/password. They&apos;ll appear right here with status <strong>Pending</strong>.</li>
                         <li>Open their row, assign a <strong>Role</strong>, set status to <strong>Active</strong>, and Save. They now have exactly the permissions that role grants.</li>
                     </ol>
                 </Modal.Body>

@@ -163,7 +163,7 @@ export default function BlotterPage() {
                         <div className="text-center text-muted py-5">
                             <p className="fs-1 mb-2">📭</p>
                             <p className="fs-5">No blotter cases yet.</p>
-                            <p>Click "File Blotter" to log your first case.</p>
+                            <p>Click &quot;File Blotter&quot; to log your first case.</p>
                         </div>
                     )}
                     {blotters.length > 0 && filtered.length === 0 && (

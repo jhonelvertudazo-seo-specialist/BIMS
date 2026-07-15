@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { supabase } from '../lib/supabaseClient.js';
 import { useAuth } from '../context/AuthContext.jsx';
+import { useUI } from '../context/UIContext.jsx';
 import { MODULE_LIST, PERMISSION_ACTIONS } from '../lib/modules.js';
 import LoadingSpinner from '../components/common/LoadingSpinner.jsx';
 
@@ -41,6 +42,7 @@ function PermCell({ state, roleValue, disabled, onClick, moduleLabel, actionLabe
 
 export default function PermissionsPage() {
     const { isSuperAdmin } = useAuth();
+    const { showToast } = useUI();
     const [mode, setMode] = useState('role');
 
     // --- Role-based matrix -------------------------------------------------
@@ -52,21 +54,27 @@ export default function PermissionsPage() {
 
     const loadRoles = useCallback(async () => {
         const { data, error } = await supabase.from('roles').select('*').order('role_name', { ascending: true });
-        if (error) console.error('Failed to load roles:', error.message);
+        if (error) {
+            console.error('Failed to load roles:', error.message);
+            showToast('Failed to load roles.', true);
+        }
         setRoles(data || []);
         if (data && data.length > 0) setRoleId((prev) => prev || data[0].id);
-    }, []);
+    }, [showToast]);
 
     const loadPermissions = useCallback(async (rid) => {
         if (!rid) return;
         setRoleLoading(true);
         const { data, error } = await supabase.from('permissions').select('*').eq('role_id', rid);
-        if (error) console.error('Failed to load permissions:', error.message);
+        if (error) {
+            console.error('Failed to load permissions:', error.message);
+            showToast('Failed to load permissions.', true);
+        }
         const map = {};
         (data || []).forEach((p) => { map[p.module_name] = p; });
         setPermsByModule(map);
         setRoleLoading(false);
-    }, []);
+    }, [showToast]);
 
     useEffect(() => { loadRoles(); }, [loadRoles]);
     useEffect(() => { if (roleId) loadPermissions(roleId); }, [roleId, loadPermissions]);
@@ -96,6 +104,7 @@ export default function PermissionsPage() {
         const { error } = await supabase.from('permissions').upsert(payload, { onConflict: 'role_id,module_name' });
         if (error) {
             console.error('Failed to update permission:', error.message);
+            showToast('Failed to update permission.', true);
             setPermsByModule((prev) => ({ ...prev, [moduleKey]: existing }));
         }
         setSavingKey('');
@@ -115,12 +124,15 @@ export default function PermissionsPage() {
             .from('app_users')
             .select('id, employee_name, email, role_id, roles(role_name)')
             .order('employee_name', { ascending: true });
-        if (error) console.error('Failed to load users:', error.message);
+        if (error) {
+            console.error('Failed to load users:', error.message);
+            showToast('Failed to load users.', true);
+        }
         const list = data || [];
         setUsers(list);
         if (list.length > 0) setUserId((prev) => prev || list[0].id);
         setUsersLoading(false);
-    }, []);
+    }, [showToast]);
 
     const loadUserPermissions = useCallback(async (uid) => {
         if (!uid) return;
@@ -132,8 +144,14 @@ export default function PermissionsPage() {
                 : Promise.resolve({ data: [] }),
             supabase.from('user_permissions').select('*').eq('app_user_id', uid),
         ]);
-        if (roleRes.error) console.error('Failed to load role permissions:', roleRes.error.message);
-        if (overrideRes.error) console.error('Failed to load user overrides:', overrideRes.error.message);
+        if (roleRes.error) {
+            console.error('Failed to load role permissions:', roleRes.error.message);
+            showToast('Failed to load role permissions.', true);
+        }
+        if (overrideRes.error) {
+            console.error('Failed to load user overrides:', overrideRes.error.message);
+            showToast('Failed to load user overrides.', true);
+        }
         const roleMap = {};
         (roleRes.data || []).forEach((p) => { roleMap[p.module_name] = p; });
         const overrideMap = {};
@@ -141,7 +159,7 @@ export default function PermissionsPage() {
         setUserRolePerms(roleMap);
         setUserOverrides(overrideMap);
         setUserPermsLoading(false);
-    }, [users]);
+    }, [users, showToast]);
 
     useEffect(() => { if (mode === 'user') loadUsers(); }, [mode, loadUsers]);
     useEffect(() => { if (mode === 'user' && userId && users.length > 0) loadUserPermissions(userId); }, [mode, userId, users, loadUserPermissions]);
@@ -166,6 +184,7 @@ export default function PermissionsPage() {
             const { error } = await supabase.from('user_permissions').delete().eq('app_user_id', userId).eq('module_name', moduleKey);
             if (error) {
                 console.error('Failed to clear override:', error.message);
+                showToast('Failed to clear override.', true);
                 setUserOverrides((prev) => ({ ...prev, [moduleKey]: existing }));
             } else {
                 setUserOverrides((prev) => {
@@ -180,6 +199,7 @@ export default function PermissionsPage() {
             const { error } = await supabase.from('user_permissions').upsert(payload, { onConflict: 'app_user_id,module_name' });
             if (error) {
                 console.error('Failed to update override:', error.message);
+                showToast('Failed to update override.', true);
                 setUserOverrides((prev) => ({ ...prev, [moduleKey]: existing }));
             }
         }
@@ -277,10 +297,10 @@ export default function PermissionsPage() {
                             </div>
                             <p className="text-muted small">
                                 Green ✓ / red ✕ are overrides just for this person. A grey dash or outlined check means they still inherit
-                                their role's default — click a cell to override it, click again to deny it, click again to go back to inherit.
+                                their role&apos;s default — click a cell to override it, click again to deny it, click again to go back to inherit.
                             </p>
                             {selectedUserIsAdminRole && (
-                                <div className="alert alert-secondary small">This user's role (Administrator) always has full access to every module; per-user overrides don't apply.</div>
+                                <div className="alert alert-secondary small">This user&apos;s role (Administrator) always has full access to every module; per-user overrides don&apos;t apply.</div>
                             )}
                             {userPermsLoading || usersLoading ? (
                                 <LoadingSpinner label="Loading permissions…" />

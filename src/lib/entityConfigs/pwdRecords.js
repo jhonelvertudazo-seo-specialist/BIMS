@@ -14,6 +14,13 @@ export const pwdRecordsConfig = {
     codePattern: /PWD-(\d+)/,
     codePadLength: 4,
     lookups: [{ key: 'residents', source: 'context' }],
+    // Residents tagged with the PWD sector but not yet in this registry —
+    // shown directly in the table below (not just a separate alert) so
+    // they're not missed.
+    getCandidates: (residents, items) => {
+        const registeredIds = new Set(items.map((i) => String(i.residentId)));
+        return (residents || []).filter((r) => r.sector === 'PWD' && !registeredIds.has(String(r.id)));
+    },
     fields: [
         { key: 'residentId', label: 'Resident', type: 'lookup', lookup: 'residents', displayField: 'fullName', column: 'resident_id', required: true, col: 'col-12' },
         { key: 'pwdIdNumber', label: 'PWD ID Number', type: 'text', auto: true },

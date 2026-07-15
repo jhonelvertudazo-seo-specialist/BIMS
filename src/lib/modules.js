@@ -12,6 +12,13 @@ export const MODULE_LIST = [
     { key: 'youthProfiles', label: 'Youth (SK)' },
     { key: 'residentSearch', label: 'Resident Search' },
     { key: 'certificates', label: 'Certificates' },
+    { key: 'certBarangayClearance', label: 'Barangay Clearance' },
+    { key: 'certResidency', label: 'Certificate of Residency' },
+    { key: 'certIndigency', label: 'Certificate of Indigency' },
+    { key: 'certGoodMoral', label: 'Certificate of Good Moral Character' },
+    { key: 'certBusinessEndorsement', label: 'Business Permit Endorsement' },
+    { key: 'certCedula', label: 'Cedula' },
+    { key: 'certIssued', label: 'Issued Certificates' },
     { key: 'blotter', label: 'Blotter Records' },
     { key: 'businesses', label: 'Business Registration' },
     { key: 'businessClearance', label: 'Business Clearance' },
@@ -50,6 +57,7 @@ export const MODULE_LIST = [
     { key: 'activityLogs', label: 'Activity Logs' },
     { key: 'loginHistory', label: 'Login History' },
     { key: 'settings', label: 'System Settings' },
+    { key: 'recycleBin', label: 'Recycle Bin' },
 ];
 
 export const PERMISSION_ACTIONS = ['can_view', 'can_add', 'can_edit', 'can_delete', 'can_print', 'can_export', 'can_approve'];

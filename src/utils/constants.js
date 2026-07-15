@@ -14,12 +14,16 @@ export const EDUCATIONAL_ATTAINMENTS = [
 
 export const RESIDENT_STATUSES = ['Active', 'Inactive'];
 
+// No hardcoded/default fee per type — the fee is set manually per
+// certificate at issuance time (see CertificateFormModal.jsx) since it
+// can vary per resident/circumstance rather than being fixed by type.
 export const CERTIFICATE_TYPES = [
-    { type: 'Barangay Clearance', fee: 50 },
-    { type: 'Certificate of Residency', fee: 30 },
-    { type: 'Certificate of Indigency', fee: 0 },
-    { type: 'Certificate of Good Moral Character', fee: 30 },
-    { type: 'Business Permit Endorsement', fee: 100 },
+    'Barangay Clearance',
+    'Certificate of Residency',
+    'Certificate of Indigency',
+    'Certificate of Good Moral Character',
+    'Business Permit Endorsement',
+    'Cedula',
 ];
 
 export const INCIDENT_TYPES = ['Noise Complaint', 'Property Dispute', 'Physical Altercation', 'Theft', 'Verbal Altercation', 'Other'];

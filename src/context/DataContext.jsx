@@ -1,8 +1,10 @@
 import { createContext, useCallback, useContext, useEffect, useState } from 'react';
 import { supabase } from '../lib/supabaseClient.js';
 import { useAuth } from './AuthContext.jsx';
+import { useUI } from './UIContext.jsx';
 import { nextSequentialCode } from '../lib/codeGen.js';
 import { logAudit } from '../lib/auditLog.js';
+import { computeHouseholdCounts } from '../utils/householdStats.js';
 import {
     residentFromRow, residentToRow,
     certificateFromRow, certificateToRow,
@@ -14,6 +16,7 @@ const DataContext = createContext(null);
 
 export function DataProvider({ children }) {
     const { session, isApproved } = useAuth();
+    const { showToast } = useUI();
     const [residents, setResidents] = useState([]);
     const [certificates, setCertificates] = useState([]);
     const [blotters, setBlotters] = useState([]);
@@ -23,23 +26,30 @@ export function DataProvider({ children }) {
     const loadAll = useCallback(async () => {
         setLoading(true);
         const [residentsRes, certificatesRes, blottersRes, householdsRes] = await Promise.all([
-            supabase.from('residents').select('*').order('created_at', { ascending: true }),
-            supabase.from('certificates').select('*').order('issued_at', { ascending: true }),
-            supabase.from('blotters').select('*').order('filed_at', { ascending: true }),
-            supabase.from('households').select('*').order('created_at', { ascending: true }),
+            supabase.from('residents').select('*').is('deleted_at', null).order('created_at', { ascending: true }),
+            supabase.from('certificates').select('*').is('deleted_at', null).order('issued_at', { ascending: true }),
+            supabase.from('blotters').select('*').is('deleted_at', null).order('filed_at', { ascending: true }),
+            supabase.from('households').select('*').is('deleted_at', null).order('created_at', { ascending: true }),
         ]);
 
-        if (residentsRes.error) console.error('Failed to load residents:', residentsRes.error.message);
-        if (certificatesRes.error) console.error('Failed to load certificates:', certificatesRes.error.message);
-        if (blottersRes.error) console.error('Failed to load blotters:', blottersRes.error.message);
-        if (householdsRes.error) console.error('Failed to load households:', householdsRes.error.message);
+        const loadErrors = [
+            ['residents', residentsRes.error],
+            ['certificates', certificatesRes.error],
+            ['blotters', blottersRes.error],
+            ['households', householdsRes.error],
+        ].filter(([, error]) => error);
+
+        loadErrors.forEach(([label, error]) => console.error(`Failed to load ${label}:`, error.message));
+        if (loadErrors.length) {
+            showToast(`Failed to load ${loadErrors.map(([label]) => label).join(', ')}. Try refreshing the page.`, true);
+        }
 
         setResidents((residentsRes.data || []).map(residentFromRow));
         setCertificates((certificatesRes.data || []).map(certificateFromRow));
         setBlotters((blottersRes.data || []).map(blotterFromRow));
         setHouseholds((householdsRes.data || []).map(householdFromRow));
         setLoading(false);
-    }, []);
+    }, [showToast]);
 
     useEffect(() => {
         if (session && isApproved) {
@@ -53,13 +63,37 @@ export function DataProvider({ children }) {
         }
     }, [session, isApproved, loadAll]);
 
+    // Household member counts are derived from residents.householdId, not
+    // manually typed, so any resident change that could affect a
+    // household's counts (linking, unlinking, sector/voter changes,
+    // deletion) recomputes and persists that household's counts here.
+    async function syncHouseholdCounts(householdId, residentsSnapshot) {
+        if (!householdId) return;
+        const counts = computeHouseholdCounts(householdId, residentsSnapshot);
+        const row = {
+            family_members_count: counts.familyMembersCount,
+            voter_members_count: counts.voterMembersCount,
+            pwd_members_count: counts.pwdMembersCount,
+            senior_members_count: counts.seniorMembersCount,
+        };
+        const { data: updated, error } = await supabase.from('households').update(row).eq('id', householdId).select().single();
+        if (error) {
+            console.error('Failed to sync household member counts:', error.message);
+            return;
+        }
+        const record = householdFromRow(updated);
+        setHouseholds((prev) => prev.map((h) => (h.id === householdId ? record : h)));
+    }
+
     async function addResident(data) {
         const residentId = nextSequentialCode(residents, 'residentId', /RES-(\d+)/, 'RES-', 4);
         const row = residentToRow({ ...data, residentId });
         const { data: inserted, error } = await supabase.from('residents').insert(row).select().single();
         if (error) throw error;
         const record = residentFromRow(inserted);
-        setResidents((prev) => [...prev, record]);
+        const nextResidents = [...residents, record];
+        setResidents(nextResidents);
+        if (record.householdId) await syncHouseholdCounts(record.householdId, nextResidents);
         return record;
     }
 
@@ -69,14 +103,25 @@ export function DataProvider({ children }) {
         const { data: updated, error } = await supabase.from('residents').update(row).eq('id', id).select().single();
         if (error) throw error;
         const record = residentFromRow(updated);
-        setResidents((prev) => prev.map((r) => (r.id === id ? record : r)));
+        const nextResidents = residents.map((r) => (r.id === id ? record : r));
+        setResidents(nextResidents);
+        if (existing?.householdId && existing.householdId !== record.householdId) {
+            await syncHouseholdCounts(existing.householdId, nextResidents);
+        }
+        if (record.householdId) await syncHouseholdCounts(record.householdId, nextResidents);
         return record;
     }
 
+    // Soft delete — marks the row instead of removing it, so it can be
+    // recovered from the Recycle Bin (src/pages/RecycleBinPage.jsx).
     async function deleteResident(id) {
-        const { error } = await supabase.from('residents').delete().eq('id', id);
+        const existing = residents.find((r) => r.id === id);
+        const { error } = await supabase.from('residents').update({ deleted_at: new Date().toISOString() }).eq('id', id);
         if (error) throw error;
-        setResidents((prev) => prev.filter((r) => r.id !== id));
+        const nextResidents = residents.filter((r) => r.id !== id);
+        setResidents(nextResidents);
+        logAudit('residents', id, 'delete', session?.user?.email);
+        if (existing?.householdId) await syncHouseholdCounts(existing.householdId, nextResidents);
     }
 
     async function issueCertificate({ residentId, type, fee, purpose }) {
@@ -126,14 +171,14 @@ export function DataProvider({ children }) {
     }
 
     async function deleteCertificate(id) {
-        const { error } = await supabase.from('certificates').delete().eq('id', id);
+        const { error } = await supabase.from('certificates').update({ deleted_at: new Date().toISOString() }).eq('id', id);
         if (error) throw error;
         setCertificates((prev) => prev.filter((c) => c.id !== id));
         logAudit('certificates', id, 'delete', session?.user?.email);
     }
 
     async function deleteBlotter(id) {
-        const { error } = await supabase.from('blotters').delete().eq('id', id);
+        const { error } = await supabase.from('blotters').update({ deleted_at: new Date().toISOString() }).eq('id', id);
         if (error) throw error;
         setBlotters((prev) => prev.filter((b) => b.id !== id));
         logAudit('blotters', id, 'delete', session?.user?.email);
@@ -160,9 +205,10 @@ export function DataProvider({ children }) {
     }
 
     async function deleteHousehold(id) {
-        const { error } = await supabase.from('households').delete().eq('id', id);
+        const { error } = await supabase.from('households').update({ deleted_at: new Date().toISOString() }).eq('id', id);
         if (error) throw error;
         setHouseholds((prev) => prev.filter((h) => h.id !== id));
+        logAudit('households', id, 'delete', session?.user?.email);
     }
 
     const value = {

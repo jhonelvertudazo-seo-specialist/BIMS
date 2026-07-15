@@ -14,6 +14,10 @@ export const soloParentsConfig = {
     codePattern: /SP-(\d+)/,
     codePadLength: 4,
     lookups: [{ key: 'residents', source: 'context' }],
+    getCandidates: (residents, items) => {
+        const registeredIds = new Set(items.map((i) => String(i.residentId)));
+        return (residents || []).filter((r) => r.sector === 'Solo Parent' && !registeredIds.has(String(r.id)));
+    },
     fields: [
         { key: 'residentId', label: 'Resident', type: 'lookup', lookup: 'residents', displayField: 'fullName', column: 'resident_id', required: true, col: 'col-12' },
         { key: 'soloParentId', label: 'Solo Parent ID', type: 'text', auto: true },

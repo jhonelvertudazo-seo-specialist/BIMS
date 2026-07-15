@@ -36,7 +36,6 @@ export default function GenericPage({ config }) {
             if (l.source === 'context') merged[l.key] = dataCtx[l.key] || [];
         });
         return merged;
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [tableLookupData, dataCtx, config]);
 
     const [search, setSearch] = useState('');
@@ -45,8 +44,27 @@ export default function GenericPage({ config }) {
     const [editId, setEditId] = useState(null);
     const [viewId, setViewId] = useState(null);
     const [deleteId, setDeleteId] = useState(null);
+    const [prefillResidentId, setPrefillResidentId] = useState(null);
 
-    const baseItems = config.filterItems ? config.filterItems(items) : items;
+    const residentFieldKey = config.fields.find((f) => f.type === 'lookup' && f.lookup === 'residents')?.key;
+    const candidates = config.getCandidates ? config.getCandidates(dataCtx.residents || [], items) : [];
+    // Registered rows whose resident no longer qualifies (e.g. a youth
+    // profile for someone who has since turned 31+) are hidden from this
+    // tab entirely rather than shown alongside active ones — the DB row
+    // itself is untouched, just not displayed here.
+    const eligibleItems = config.isEligible
+        ? items.filter((item) => config.isEligible(item, dataCtx.residents || []))
+        : items;
+    // Residents who qualify (by age/sector) but don't have a row in this
+    // registry yet — merged straight into the table as unregistered rows
+    // instead of a separate list, so they're not missed. They only carry
+    // the resident link; every other column naturally renders '—' until
+    // someone fills in the rest via "Register".
+    const candidateItems = residentFieldKey
+        ? candidates.map((r) => ({ id: `candidate-${r.id}`, [residentFieldKey]: r.id, __candidate: true }))
+        : [];
+    const combinedItems = candidateItems.length ? [...eligibleItems, ...candidateItems] : eligibleItems;
+    const baseItems = config.filterItems ? config.filterItems(combinedItems) : combinedItems;
 
     const filtered = useMemo(() => {
         return baseItems.filter((item) => {
@@ -56,7 +74,9 @@ export default function GenericPage({ config }) {
             }
             if (search) {
                 const term = search.toLowerCase();
-                const hay = (config.searchFields || [])
+                const searchableFields = new Set([...(config.searchFields || [])]);
+                if (residentFieldKey) searchableFields.add(residentFieldKey);
+                const hay = Array.from(searchableFields)
                     .map((fieldKey) => {
                         const field = config.fields.find((f) => f.key === fieldKey);
                         if (field?.type === 'lookup') return lookupLabel(field, item[fieldKey], lookupData);
@@ -89,10 +109,23 @@ export default function GenericPage({ config }) {
     const editingItem = editId ? items.find((i) => i.id === editId) : null;
     const viewItem = viewId ? items.find((i) => i.id === viewId) : null;
     const deleteItem = deleteId ? items.find((i) => i.id === deleteId) : null;
+    const initialData = residentFieldKey && prefillResidentId ? { [residentFieldKey]: prefillResidentId } : undefined;
 
     async function handleSave(id, data) {
         if (id) await update(id, data);
         else await add(data);
+    }
+
+    function openBlankAddModal() {
+        setEditId(null);
+        setPrefillResidentId(null);
+        setModalOpen(true);
+    }
+
+    function openCandidateModal(residentId) {
+        setEditId(null);
+        setPrefillResidentId(residentId);
+        setModalOpen(true);
     }
 
     if (!canView) {
@@ -100,7 +133,7 @@ export default function GenericPage({ config }) {
             <section className="app-view">
                 <div className="text-center text-muted py-5">
                     <p className="fs-1 mb-2">🔒</p>
-                    <p className="fs-5">You don't have access to {config.title.toLowerCase()}.</p>
+                    <p className="fs-5">You don&apos;t have access to {config.title.toLowerCase()}.</p>
                     <p>Contact an administrator if you believe this is a mistake.</p>
                 </div>
             </section>
@@ -154,7 +187,7 @@ export default function GenericPage({ config }) {
                                 <button
                                     type="button"
                                     className="btn btn-accent"
-                                    onClick={() => { setEditId(null); setModalOpen(true); }}
+                                    onClick={openBlankAddModal}
                                 >
                                     {config.addLabel || `+ Add ${config.title}`}
                                 </button>
@@ -193,6 +226,12 @@ export default function GenericPage({ config }) {
                 </div>
 
                 <div className="card-body">
+                    {candidates.length > 0 && (
+                        <div className="alert alert-warning small mb-3">
+                            {candidates.length} resident{candidates.length === 1 ? '' : 's'} qualify for {config.title} but {candidates.length === 1 ? "isn't" : "aren't"} registered yet — shown below as <strong>Not Registered</strong>.
+                        </div>
+                    )}
+
                     <p className="text-muted small mb-2">
                         {baseItems.length
                             ? `Showing ${filtered.length} of ${baseItems.length} record${baseItems.length === 1 ? '' : 's'}`
@@ -216,8 +255,11 @@ export default function GenericPage({ config }) {
                                 onView={setViewId}
                                 onEdit={(id) => { setEditId(id); setModalOpen(true); }}
                                 onDelete={setDeleteId}
+                                onRegister={(residentId) => openCandidateModal(residentId)}
+                                residentFieldKey={residentFieldKey}
                                 canEdit={canEdit}
                                 canDelete={canDelete}
+                                canAdd={canAdd}
                                 extraActions={config.rowActions ? (item) => config.rowActions.map((action) => (
                                     <Dropdown.Item key={action.label} onClick={() => action.onClick(item, lookupData)}>
                                         {action.icon} {action.label}
@@ -234,7 +276,8 @@ export default function GenericPage({ config }) {
                 config={config}
                 show={modalOpen}
                 editingItem={editingItem}
-                onClose={() => { setModalOpen(false); setEditId(null); }}
+                initialData={initialData}
+                onClose={() => { setModalOpen(false); setEditId(null); setPrefillResidentId(null); }}
                 onSave={handleSave}
                 lookupData={lookupData}
                 showToast={showToast}

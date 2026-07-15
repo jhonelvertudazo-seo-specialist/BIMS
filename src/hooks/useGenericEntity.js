@@ -18,6 +18,7 @@ export function useGenericEntity(config, { enabled = true } = {}) {
         const { data, error } = await supabase
             .from(config.table)
             .select('*')
+            .is('deleted_at', null)
             .order(orderColumn, { ascending });
         if (error) {
             console.error(`Failed to load ${config.table}:`, error.message);
@@ -65,8 +66,10 @@ export function useGenericEntity(config, { enabled = true } = {}) {
         return record;
     }
 
+    // Soft delete — marks the row instead of removing it, so it can be
+    // recovered from the Recycle Bin (src/pages/RecycleBinPage.jsx).
     async function remove(id) {
-        const { error } = await supabase.from(config.table).delete().eq('id', id);
+        const { error } = await supabase.from(config.table).update({ deleted_at: new Date().toISOString() }).eq('id', id);
         if (error) throw error;
         setItems((prev) => prev.filter((i) => i.id !== id));
         if (config.auditLog) logAudit(config.table, id, 'delete', user?.email);

@@ -6,7 +6,6 @@ import { PUROKS } from '../../utils/constants.js';
 
 const EMPTY_FORM = {
     purok: '', address: '', headOfFamily: '',
-    familyMembersCount: 0, voterMembersCount: 0, pwdMembersCount: 0, seniorMembersCount: 0,
 };
 
 export default function HouseholdFormModal() {
@@ -26,10 +25,6 @@ export default function HouseholdFormModal() {
                 purok: editingHousehold.purok,
                 address: editingHousehold.address || '',
                 headOfFamily: editingHousehold.headOfFamily,
-                familyMembersCount: editingHousehold.familyMembersCount,
-                voterMembersCount: editingHousehold.voterMembersCount,
-                pwdMembersCount: editingHousehold.pwdMembersCount,
-                seniorMembersCount: editingHousehold.seniorMembersCount,
             });
         } else {
             setForm(EMPTY_FORM);
@@ -55,10 +50,6 @@ export default function HouseholdFormModal() {
             ...form,
             address: form.address.trim(),
             headOfFamily: form.headOfFamily.trim(),
-            familyMembersCount: Number(form.familyMembersCount) || 0,
-            voterMembersCount: Number(form.voterMembersCount) || 0,
-            pwdMembersCount: Number(form.pwdMembersCount) || 0,
-            seniorMembersCount: Number(form.seniorMembersCount) || 0,
         };
 
         setSubmitting(true);
@@ -126,49 +117,10 @@ export default function HouseholdFormModal() {
                             </Form.Group>
                         </div>
 
-                        <div className="col-6 col-md-3">
-                            <Form.Group controlId="householdFamilyCount">
-                                <Form.Label>Family Members</Form.Label>
-                                <Form.Control
-                                    type="number"
-                                    min="0"
-                                    value={form.familyMembersCount}
-                                    onChange={(e) => updateField('familyMembersCount', e.target.value)}
-                                />
-                            </Form.Group>
-                        </div>
-                        <div className="col-6 col-md-3">
-                            <Form.Group controlId="householdVoterCount">
-                                <Form.Label>Voter Members</Form.Label>
-                                <Form.Control
-                                    type="number"
-                                    min="0"
-                                    value={form.voterMembersCount}
-                                    onChange={(e) => updateField('voterMembersCount', e.target.value)}
-                                />
-                            </Form.Group>
-                        </div>
-                        <div className="col-6 col-md-3">
-                            <Form.Group controlId="householdPwdCount">
-                                <Form.Label>PWD Members</Form.Label>
-                                <Form.Control
-                                    type="number"
-                                    min="0"
-                                    value={form.pwdMembersCount}
-                                    onChange={(e) => updateField('pwdMembersCount', e.target.value)}
-                                />
-                            </Form.Group>
-                        </div>
-                        <div className="col-6 col-md-3">
-                            <Form.Group controlId="householdSeniorCount">
-                                <Form.Label>Senior Members</Form.Label>
-                                <Form.Control
-                                    type="number"
-                                    min="0"
-                                    value={form.seniorMembersCount}
-                                    onChange={(e) => updateField('seniorMembersCount', e.target.value)}
-                                />
-                            </Form.Group>
+                        <div className="col-12">
+                            <p className="text-muted small mb-0">
+                                Family, voter, PWD, and senior member counts are calculated automatically from residents linked to this household — assign a resident to it via the Household field on their profile.
+                            </p>
                         </div>
                     </div>
                 </Modal.Body>

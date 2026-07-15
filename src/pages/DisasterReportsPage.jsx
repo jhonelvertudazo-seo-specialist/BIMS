@@ -19,7 +19,6 @@ export default function DisasterReportsPage() {
     }, [incidents]);
 
     const totalFamilies = useMemo(() => incidents.reduce((s, i) => s + (Number(i.familiesAffected) || 0), 0), [incidents]);
-    const totalResidents = useMemo(() => incidents.reduce((s, i) => s + (Number(i.residentsAffected) || 0), 0), [incidents]);
     const totalCasualties = useMemo(() => incidents.reduce((s, i) => s + (Number(i.casualties) || 0), 0), [incidents]);
     const availableCenters = useMemo(() => centers.filter((c) => c.status === 'Available').length, [centers]);
 

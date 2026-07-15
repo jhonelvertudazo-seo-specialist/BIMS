@@ -9,6 +9,7 @@ export function UIProvider({ children }) {
     const [residentViewId, setResidentViewId] = useState(null);
     const [residentDeleteId, setResidentDeleteId] = useState(null);
     const [certificateModalOpen, setCertificateModalOpen] = useState(false);
+    const [certificateModalInitialType, setCertificateModalInitialType] = useState('');
     const [certificateViewId, setCertificateViewId] = useState(null);
     const [certificateDeleteId, setCertificateDeleteId] = useState(null);
     const [blotterModalOpen, setBlotterModalOpen] = useState(false);
@@ -34,7 +35,10 @@ export function UIProvider({ children }) {
     const openDeleteResident = useCallback((id) => setResidentDeleteId(id), []);
     const closeDeleteResident = useCallback(() => setResidentDeleteId(null), []);
 
-    const openCertificateModal = useCallback(() => setCertificateModalOpen(true), []);
+    const openCertificateModal = useCallback((initialType = '') => {
+        setCertificateModalInitialType(initialType);
+        setCertificateModalOpen(true);
+    }, []);
     const closeCertificateModal = useCallback(() => setCertificateModalOpen(false), []);
 
     const openViewCertificate = useCallback((id) => setCertificateViewId(id), []);
@@ -67,7 +71,7 @@ export function UIProvider({ children }) {
         residentModal, openAddResident, openEditResident, closeResidentModal,
         residentViewId, openViewResident, closeViewResident,
         residentDeleteId, openDeleteResident, closeDeleteResident,
-        certificateModalOpen, openCertificateModal, closeCertificateModal,
+        certificateModalOpen, certificateModalInitialType, openCertificateModal, closeCertificateModal,
         certificateViewId, openViewCertificate, closeViewCertificate,
         certificateDeleteId, openDeleteCertificate, closeDeleteCertificate,
         blotterModalOpen, openBlotterModal, closeBlotterModal,

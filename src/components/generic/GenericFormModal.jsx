@@ -3,13 +3,13 @@ import { Modal, Form, Button } from 'react-bootstrap';
 import LookupSelect from './LookupSelect.jsx';
 import { uploadFile } from '../../lib/uploadFile.js';
 
-function buildEmptyForm(config) {
+function buildEmptyForm(config, initialData) {
     const empty = {};
     config.fields.forEach((field) => {
         if (field.auto) return;
         empty[field.key] = field.type === 'checkbox' ? false : field.type === 'number' || field.type === 'currency' ? 0 : '';
     });
-    return empty;
+    return initialData ? { ...empty, ...initialData } : empty;
 }
 
 function FieldInput({ field, value, onChange, lookupData, onFileSelect }) {
@@ -119,12 +119,14 @@ function FieldInput({ field, value, onChange, lookupData, onFileSelect }) {
             placeholder={field.placeholder}
             value={value ?? ''}
             onChange={(e) => onChange(e.target.value)}
+            readOnly={field.auto}
+            disabled={field.auto}
         />
     );
 }
 
-export default function GenericFormModal({ config, show, editingItem, onClose, onSave, lookupData, showToast }) {
-    const [form, setForm] = useState(() => buildEmptyForm(config));
+export default function GenericFormModal({ config, show, editingItem, initialData, onClose, onSave, lookupData, showToast }) {
+    const [form, setForm] = useState(() => buildEmptyForm(config, initialData));
     const [validated, setValidated] = useState(false);
     const [submitting, setSubmitting] = useState(false);
     const [fileSelections, setFileSelections] = useState({});
@@ -138,10 +140,10 @@ export default function GenericFormModal({ config, show, editingItem, onClose, o
             config.fields.forEach((field) => { next[field.key] = editingItem[field.key]; });
             setForm(next);
         } else {
-            setForm(buildEmptyForm(config));
+            setForm(buildEmptyForm(config, initialData));
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [show, editingItem?.id]);
+    }, [show, editingItem?.id, initialData]);
 
     function updateField(key, value) {
         setForm((prev) => ({ ...prev, [key]: value }));
@@ -193,7 +195,7 @@ export default function GenericFormModal({ config, show, editingItem, onClose, o
                 <Modal.Header closeButton>
                     <Modal.Title>{editingItem ? `Update ${config.title}` : `${config.addLabel || `Add ${config.title}`}`}</Modal.Title>
                 </Modal.Header>
-                <Modal.Body>
+                <Modal.Body style={{ maxHeight: '70vh', overflowY: 'auto' }}>
                     <div className="row g-3">
                         {visibleFields.map((field) => (
                             <div className={field.col || 'col-12 col-md-6'} key={field.key}>

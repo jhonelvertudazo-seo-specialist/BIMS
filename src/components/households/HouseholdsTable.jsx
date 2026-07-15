@@ -1,7 +1,7 @@
 import { Dropdown } from 'react-bootstrap';
 import { useUI } from '../../context/UIContext.jsx';
 import { useAuth } from '../../context/AuthContext.jsx';
-import { openInMaps, downloadCsv } from '../../utils/actions.js';
+import { openInMaps, downloadCsv, printDocument } from '../../utils/actions.js';
 import { formatDate } from '../../utils/format.js';
 
 function handleMapGIS(household, showToast) {
@@ -27,6 +27,22 @@ function handleGenerateReport(household) {
             formatDate(new Date(household.createdAt).toISOString()),
         ]]
     );
+}
+
+function handlePrint(household) {
+    printDocument(`Household — ${household.householdNo}`, `
+        <h1>Household Profile</h1>
+        <h2>Barangay Information and Management System</h2>
+        <table>
+            <tr><td class="label">Household No.</td><td class="value">${household.householdNo}</td></tr>
+            <tr><td class="label">Address (Purok)</td><td class="value">${household.purok}${household.address ? ` — ${household.address}` : ''}</td></tr>
+            <tr><td class="label">Head of Family</td><td class="value">${household.headOfFamily}</td></tr>
+            <tr><td class="label">Family Members</td><td class="value">${household.familyMembersCount}</td></tr>
+            <tr><td class="label">Voter Members</td><td class="value">${household.voterMembersCount}</td></tr>
+            <tr><td class="label">PWD Members</td><td class="value">${household.pwdMembersCount}</td></tr>
+            <tr><td class="label">Senior Members</td><td class="value">${household.seniorMembersCount}</td></tr>
+        </table>
+    `);
 }
 
 export default function HouseholdsTable({ households }) {
@@ -66,7 +82,8 @@ export default function HouseholdsTable({ households }) {
                                     <Dropdown.Item onClick={() => openViewHousehold(h.id)}>👪 View Members</Dropdown.Item>
                                     {canEdit && <Dropdown.Item onClick={() => openEditHousehold(h.id)}>✏️ Update Info</Dropdown.Item>}
                                     <Dropdown.Item onClick={() => handleMapGIS(h, showToast)}>📍 Map GIS</Dropdown.Item>
-                                    <Dropdown.Item onClick={() => handleGenerateReport(h)}>🖨️ Generate Report</Dropdown.Item>
+                                    <Dropdown.Item onClick={() => handlePrint(h)}>🖨️ Print</Dropdown.Item>
+                                    <Dropdown.Item onClick={() => handleGenerateReport(h)}>📤 Export CSV</Dropdown.Item>
                                     {canDelete && (
                                         <>
                                             <Dropdown.Divider />

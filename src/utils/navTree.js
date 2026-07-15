@@ -40,7 +40,6 @@ export const NAV_TREE = [
         icon: '📄', label: 'Certificate Management',
         children: [
             { to: '/certificates', label: 'Certificates' },
-            { to: '/settings/certificate-templates', label: 'Certificate Templates' },
         ],
     },
     {
@@ -148,6 +147,7 @@ export const NAV_TREE = [
             { to: '/settings/backup-restore', label: 'Backup & Restore' },
             { to: '/settings/email-sms', label: 'Email/SMS Settings' },
             { to: '/settings/system-config', label: 'System Configuration' },
+            { to: '/recycle-bin', label: 'Recycle Bin' },
         ],
     },
 ];

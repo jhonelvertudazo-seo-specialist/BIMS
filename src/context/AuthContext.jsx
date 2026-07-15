@@ -1,6 +1,7 @@
 import { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { supabase } from '../lib/supabaseClient.js';
 import { nameFromEmail } from '../utils/format.js';
+import { resolveCan } from '../lib/permissions.js';
 
 const AuthContext = createContext(null);
 
@@ -29,7 +30,7 @@ export function AuthProvider({ children }) {
             return;
         }
         setAppUserLoading(true);
-        const isSuperAdmin = authUser.email === SUPER_ADMIN_EMAIL;
+        const isFallbackSuperAdmin = authUser.email === SUPER_ADMIN_EMAIL;
         try {
             const { data: existing, error } = await supabase
                 .from('app_users')
@@ -62,12 +63,15 @@ export function AuthProvider({ children }) {
                 record = inserted;
             }
 
+            const isSuperAdmin = isFallbackSuperAdmin || !!record.is_super_admin;
+
             setAppUser({
                 id: record.id,
                 accountStatus: isSuperAdmin ? 'Active' : record.account_status,
                 roleId: record.role_id,
                 roleName: isSuperAdmin ? ADMIN_ROLE_NAME : (record.roles?.role_name || null),
                 employeeName: record.employee_name,
+                isSuperAdmin,
             });
 
             if (isSuperAdmin && (record.account_status !== 'Active' || record.roles?.role_name !== ADMIN_ROLE_NAME)) {
@@ -106,10 +110,10 @@ export function AuthProvider({ children }) {
             }
         } catch (err) {
             console.error('Failed to resolve app user:', err.message);
-            if (isSuperAdmin) {
+            if (isFallbackSuperAdmin) {
                 // Never let a DB hiccup (e.g. migrations not applied yet) lock
                 // the system administrator out of the app.
-                setAppUser({ id: null, accountStatus: 'Active', roleId: null, roleName: ADMIN_ROLE_NAME, employeeName: nameFromEmail(authUser.email) });
+                setAppUser({ id: null, accountStatus: 'Active', roleId: null, roleName: ADMIN_ROLE_NAME, employeeName: nameFromEmail(authUser.email), isSuperAdmin: true });
             } else {
                 setAppUser(null);
             }
@@ -149,20 +153,14 @@ export function AuthProvider({ children }) {
 
     const isAdmin = appUser?.roleName === ADMIN_ROLE_NAME;
     const isApproved = appUser?.accountStatus === 'Active';
-    // The system administrator's account — the only one allowed to grant or
-    // edit permissions for other users. See supabase/migrations/0009_user_permission_overrides.sql
-    // for the matching DB-side rule (is_super_admin()).
-    const isSuperAdmin = session?.user?.email === SUPER_ADMIN_EMAIL;
+    // The account allowed to grant or edit permissions for other users.
+    // Backed by app_users.is_super_admin (see supabase/migrations/0012_super_admin_flag.sql);
+    // the hardcoded email is kept only as a fallback if that row/column
+    // isn't reachable yet. Matches the DB-side rule in is_super_admin().
+    const isSuperAdmin = !!appUser?.isSuperAdmin || session?.user?.email === SUPER_ADMIN_EMAIL;
 
     function can(moduleKey, action) {
-        if (!isApproved) return false;
-        if (isAdmin) return true;
-        const override = userPermissionMap[moduleKey];
-        const overrideValue = override ? override[`can_${action}`] : null;
-        if (overrideValue !== null && overrideValue !== undefined) return !!overrideValue;
-        const perm = permissionMap[moduleKey];
-        if (!perm) return false;
-        return !!perm[`can_${action}`];
+        return resolveCan({ isApproved, isAdmin, permissionMap, userPermissionMap, moduleKey, action });
     }
 
     const value = {

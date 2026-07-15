@@ -25,7 +25,9 @@ import CalendarPage from './pages/CalendarPage.jsx';
 import DisasterReportsPage from './pages/DisasterReportsPage.jsx';
 import ReportsPage from './pages/ReportsPage.jsx';
 import BarangayProfilePage from './pages/BarangayProfilePage.jsx';
+import BackupRestorePage from './pages/BackupRestorePage.jsx';
 import SettingsShellPage from './pages/SettingsShellPage.jsx';
+import RecycleBinPage from './pages/RecycleBinPage.jsx';
 import ResidentFormModal from './components/residents/ResidentFormModal.jsx';
 import ResidentViewModal from './components/residents/ResidentViewModal.jsx';
 import DeleteResidentModal from './components/residents/DeleteResidentModal.jsx';
@@ -45,8 +47,8 @@ import { genericRoutes } from './lib/genericRoutes.js';
 export default function App() {
     return (
         <AuthProvider>
-            <DataProvider>
-                <UIProvider>
+            <UIProvider>
+                <DataProvider>
                     <HashRouter>
                         <Routes>
                             <Route path="login" element={<LoginPage />} />
@@ -76,9 +78,10 @@ export default function App() {
                                 <Route path="disaster-reports" element={<RequirePermission moduleKey="disasterReports"><DisasterReportsPage /></RequirePermission>} />
                                 <Route path="reports" element={<RequirePermission moduleKey="reports"><ReportsPage /></RequirePermission>} />
                                 <Route path="settings/barangay-profile" element={<RequirePermission moduleKey="settings"><BarangayProfilePage /></RequirePermission>} />
-                                <Route path="settings/backup-restore" element={<RequirePermission moduleKey="settings"><SettingsShellPage icon="💾" title="Backup & Restore" description="Not yet connected — automated backups need a storage/export target and credentials the team hasn't provided yet." /></RequirePermission>} />
+                                <Route path="settings/backup-restore" element={<RequirePermission moduleKey="settings"><BackupRestorePage /></RequirePermission>} />
                                 <Route path="settings/email-sms" element={<RequirePermission moduleKey="settings"><SettingsShellPage icon="✉️" title="Email / SMS Settings" description="Not yet connected — sending real email/SMS needs a provider (e.g. Resend, Semaphore) and API credentials the team hasn't provided yet." /></RequirePermission>} />
                                 <Route path="settings/system-config" element={<RequirePermission moduleKey="settings"><SettingsShellPage icon="⚙️" title="System Configuration" description="General system configuration options will appear here in a future update." /></RequirePermission>} />
+                                <Route path="recycle-bin" element={<RequirePermission moduleKey="recycleBin"><RecycleBinPage /></RequirePermission>} />
                                 <Route path="profile" element={<ProfilePage />} />
                                 {genericRoutes.map((r) => (
                                     <Route key={r.path} path={r.path} element={<GenericPage config={r.config} />} />
@@ -100,8 +103,8 @@ export default function App() {
                     <BlotterViewModal />
                     <DeleteBlotterModal />
                     <ToastHost />
-                </UIProvider>
-            </DataProvider>
+                </DataProvider>
+            </UIProvider>
         </AuthProvider>
     );
 }
