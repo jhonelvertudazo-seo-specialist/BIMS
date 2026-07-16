@@ -22,7 +22,7 @@ export function findGroupForPath(pathname) {
 export const NAV_TREE = [
     { to: '/', icon: '📊', label: 'Dashboard', end: true },
     {
-        icon: '👥', label: 'Resident Management',
+        icon: '👥', label: 'Resident Mgmt',
         children: [
             { to: '/residents', label: 'Resident' },
             { to: '/households', label: 'Household' },
@@ -37,19 +37,19 @@ export const NAV_TREE = [
         ],
     },
     {
-        icon: '📄', label: 'Certificate Management',
+        icon: '📄', label: 'Certificate Mgmt',
         children: [
             { to: '/certificates', label: 'Certificates' },
         ],
     },
     {
-        icon: '📁', label: 'Blotter Management',
+        icon: '📁', label: 'Blotter Mgmt',
         children: [
             { to: '/blotter', label: 'Blotter Records' },
         ],
     },
     {
-        icon: '🏪', label: 'Business Management',
+        icon: '🏪', label: 'Business Mgmt',
         children: [
             { to: '/businesses', label: 'Business Registration' },
             { to: '/business-clearance', label: 'Business Clearance' },
@@ -79,7 +79,7 @@ export const NAV_TREE = [
         ],
     },
     {
-        icon: '💰', label: 'Financial Management',
+        icon: '💰', label: 'Financial Mgmt',
         children: [
             { to: '/collections', label: 'Collection' },
             { to: '/receipts', label: 'Official Receipts' },
@@ -100,7 +100,7 @@ export const NAV_TREE = [
         ],
     },
     {
-        icon: '🗄️', label: 'Document Management',
+        icon: '🗄️', label: 'Document Mgmt',
         children: [
             { to: '/documents', label: 'Uploaded Files' },
             { to: '/ordinances', label: 'Ordinances' },
@@ -110,7 +110,7 @@ export const NAV_TREE = [
         ],
     },
     {
-        icon: '📦', label: 'Inventory & Asset Management',
+        icon: '📦', label: 'Inventory & Asset Mgmt',
         children: [
             { to: '/equipment', label: 'Equipment' },
             { to: '/supplies', label: 'Supplies' },
@@ -130,7 +130,7 @@ export const NAV_TREE = [
     },
     { to: '/reports', icon: '📊', label: 'Reports & Analytics' },
     {
-        icon: '🛡️', label: 'User Management',
+        icon: '🛡️', label: 'User Mgmt',
         children: [
             { to: '/users', label: 'Users' },
             { to: '/roles', label: 'Roles' },
