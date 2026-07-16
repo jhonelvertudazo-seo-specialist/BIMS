@@ -371,37 +371,37 @@ export default function ResidentFormModal() {
 
                     <h6 className="text-muted text-uppercase small fw-bold mb-2">Government IDs</h6>
                     {editingResident && (
-                        <p className="text-muted small mb-2">Government ID numbers are locked after registration. Contact a system administrator if a correction is needed.</p>
+                        <p className="text-muted small mb-2">A government ID number is locked once it&apos;s on file — contact a system administrator if a correction is needed. Still-blank ones can be filled in here.</p>
                     )}
                     <div className="row g-3">
                         <div className="col-6 col-md-2">
                             <Form.Group controlId="residentPhilsys">
                                 <Form.Label>PhilSys No.</Form.Label>
-                                <Form.Control value={form.philsysNo} onChange={(e) => updateField('philsysNo', e.target.value)} readOnly={!!editingResident} disabled={!!editingResident} />
+                                <Form.Control value={form.philsysNo} onChange={(e) => updateField('philsysNo', e.target.value)} readOnly={!!editingResident && !!form.philsysNo} disabled={!!editingResident && !!form.philsysNo} />
                             </Form.Group>
                         </div>
                         <div className="col-6 col-md-2">
                             <Form.Group controlId="residentPhilhealth">
                                 <Form.Label>PhilHealth No.</Form.Label>
-                                <Form.Control value={form.philhealthNo} onChange={(e) => updateField('philhealthNo', e.target.value)} readOnly={!!editingResident} disabled={!!editingResident} />
+                                <Form.Control value={form.philhealthNo} onChange={(e) => updateField('philhealthNo', e.target.value)} readOnly={!!editingResident && !!form.philhealthNo} disabled={!!editingResident && !!form.philhealthNo} />
                             </Form.Group>
                         </div>
                         <div className="col-6 col-md-2">
                             <Form.Group controlId="residentSss">
                                 <Form.Label>SSS No.</Form.Label>
-                                <Form.Control value={form.sssNo} onChange={(e) => updateField('sssNo', e.target.value)} readOnly={!!editingResident} disabled={!!editingResident} />
+                                <Form.Control value={form.sssNo} onChange={(e) => updateField('sssNo', e.target.value)} readOnly={!!editingResident && !!form.sssNo} disabled={!!editingResident && !!form.sssNo} />
                             </Form.Group>
                         </div>
                         <div className="col-6 col-md-3">
                             <Form.Group controlId="residentPagibig">
                                 <Form.Label>Pag-IBIG No.</Form.Label>
-                                <Form.Control value={form.pagibigNo} onChange={(e) => updateField('pagibigNo', e.target.value)} readOnly={!!editingResident} disabled={!!editingResident} />
+                                <Form.Control value={form.pagibigNo} onChange={(e) => updateField('pagibigNo', e.target.value)} readOnly={!!editingResident && !!form.pagibigNo} disabled={!!editingResident && !!form.pagibigNo} />
                             </Form.Group>
                         </div>
                         <div className="col-6 col-md-3">
                             <Form.Group controlId="residentTin">
                                 <Form.Label>TIN</Form.Label>
-                                <Form.Control value={form.tin} onChange={(e) => updateField('tin', e.target.value)} readOnly={!!editingResident} disabled={!!editingResident} />
+                                <Form.Control value={form.tin} onChange={(e) => updateField('tin', e.target.value)} readOnly={!!editingResident && !!form.tin} disabled={!!editingResident && !!form.tin} />
                             </Form.Group>
                         </div>
                     </div>
