@@ -41,7 +41,7 @@ export default function BusinessReportsPage() {
     return (
         <section className="app-view">
             <div className="row g-3 mb-3">
-                <div className="col-12 col-md-3">
+                <div className="col-6 col-md-3">
                     <div className="card stat-card shadow-sm border-0 h-100">
                         <div className="card-body d-flex align-items-center gap-3">
                             <div className="stat-icon bg-primary-subtle text-primary">🏪</div>
@@ -52,7 +52,7 @@ export default function BusinessReportsPage() {
                         </div>
                     </div>
                 </div>
-                <div className="col-12 col-md-3">
+                <div className="col-6 col-md-3">
                     <div className="card stat-card shadow-sm border-0 h-100">
                         <div className="card-body d-flex align-items-center gap-3">
                             <div className="stat-icon bg-primary-subtle text-primary">⚠️</div>
@@ -63,7 +63,7 @@ export default function BusinessReportsPage() {
                         </div>
                     </div>
                 </div>
-                <div className="col-12 col-md-3">
+                <div className="col-6 col-md-3">
                     <div className="card stat-card shadow-sm border-0 h-100">
                         <div className="card-body d-flex align-items-center gap-3">
                             <div className="stat-icon bg-primary-subtle text-primary">📋</div>
@@ -74,7 +74,7 @@ export default function BusinessReportsPage() {
                         </div>
                     </div>
                 </div>
-                <div className="col-12 col-md-3">
+                <div className="col-6 col-md-3">
                     <div className="card stat-card shadow-sm border-0 h-100">
                         <div className="card-body d-flex align-items-center gap-3">
                             <div className="stat-icon bg-primary-subtle text-primary">💰</div>

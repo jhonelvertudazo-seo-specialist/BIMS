@@ -330,41 +330,18 @@ body {
     min-height: 100vh;
 }
 
-/* ---------- Module tabs (sub-modules within a module group) ---------- */
-
-.module-tabs {
-    flex-wrap: nowrap;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: thin;
-}
-
-.module-tabs .nav-item {
-    flex: 0 0 auto;
-}
-
-.module-tabs .nav-link {
-    white-space: nowrap;
-    color: #5b6579;
-}
-
-.module-tabs .nav-link.active {
-    color: var(--brand-blue);
-    font-weight: 600;
-    border-color: var(--bs-border-color) var(--bs-border-color) #fff;
-}
-
 /* ---------- Mobile-friendly tab bars ---------- */
 /* Generic version for any Nav/Tabs bar that can have more tabs than fit
-   on a narrow screen (Certificate Management's per-type tabs, Reports &
-   Analytics). On mobile, a horizontal-scroll-only tab bar hides every tab
-   past the first one or two off-screen with no visible hint that more
-   exist, which reads as "the other tabs aren't there" — so instead every
-   tab wraps onto as many rows as it takes, styled as a compact pill, so
-   all of them are visible and tappable at once with no scrolling or
-   discovery required. From tablet width up, where there's room, it
-   reverts to a single scrollable row (the same pattern as the sidebar's
-   .module-tabs) since wrapping is no longer necessary there. */
+   on a narrow screen — the top-of-page module tab bar (ModuleTabs.jsx,
+   e.g. Resident Management's 10 sub-tabs), Certificate Management's
+   per-type tabs, Reports & Analytics. On mobile, a horizontal-scroll-only
+   tab bar hides every tab past the first one or two off-screen with no
+   visible hint that more exist, which reads as "the other tabs aren't
+   there" — so instead every tab wraps onto as many rows as it takes,
+   styled as a compact pill, so all of them are visible and tappable at
+   once with no scrolling or discovery required. From tablet width up,
+   where there's room, it reverts to a single scrollable row since
+   wrapping is no longer necessary there. */
 .scroll-tabs {
     flex-wrap: wrap;
     row-gap: 0.4rem;
@@ -892,10 +869,6 @@ body {
     background-color: #1e293b;
     border-color: #334155;
     color: var(--viz-text-primary);
-}
-
-[data-bs-theme="dark"] .module-tabs .nav-link.active {
-    border-color: var(--bs-border-color) var(--bs-border-color) var(--bs-body-bg);
 }
 
 [data-bs-theme="dark"] .global-search-results {

@@ -8,7 +8,7 @@ export default function ModuleTabs() {
     if (!group || !group.children || group.children.length < 2) return null;
 
     return (
-        <ul className="nav nav-tabs module-tabs mb-3">
+        <ul className="nav nav-tabs scroll-tabs mb-3">
             {group.children.map((child) => (
                 <li className="nav-item" key={child.label}>
                     {child.soon ? (
