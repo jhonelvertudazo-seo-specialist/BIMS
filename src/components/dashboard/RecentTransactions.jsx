@@ -12,7 +12,7 @@ export default function RecentTransactions({ certificates }) {
                     <div className="viz-card-title mb-0">Recent Transactions</div>
                     <div className="viz-card-subtitle">Latest certificates issued</div>
                 </div>
-                <button type="button" className="btn btn-accent btn-sm text-nowrap" onClick={openCertificateModal}>+ Create New Certificate</button>
+                {/* <button type="button" className="btn btn-accent btn-sm text-nowrap" onClick={openCertificateModal}>+ Create New Certificate</button> */}
             </div>
             <div className="card-body">
                 {certificates.length === 0 && (
