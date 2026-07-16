@@ -170,7 +170,7 @@ export default function ResidentFormModal() {
                                 <Form.Control.Feedback type="invalid">Last name is required.</Form.Control.Feedback>
                             </Form.Group>
                         </div>
-                        <div className="col-6 col-md-1">
+                        <div className="col-6 col-md-2">
                             <Form.Group controlId="residentSuffix">
                                 <Form.Label>Suffix</Form.Label>
                                 <Form.Control placeholder="Jr." value={form.suffix} onChange={(e) => updateField('suffix', e.target.value)} />

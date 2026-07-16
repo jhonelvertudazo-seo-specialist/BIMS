@@ -186,7 +186,7 @@ export default function ResidentsPage() {
                                 {EMPLOYMENT_STATUSES.map((s) => <option key={s} value={s}>{s}</option>)}
                             </select>
                         </div>
-                        <div className="col-3 col-md-2">
+                        <div className="col-6 col-md-2">
                             <input
                                 type="number"
                                 min="0"
@@ -196,7 +196,7 @@ export default function ResidentsPage() {
                                 onChange={(e) => setAgeMin(e.target.value)}
                             />
                         </div>
-                        <div className="col-3 col-md-2">
+                        <div className="col-6 col-md-2">
                             <input
                                 type="number"
                                 min="0"

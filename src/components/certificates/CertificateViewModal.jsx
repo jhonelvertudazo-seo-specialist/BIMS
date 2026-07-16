@@ -28,7 +28,7 @@ export default function CertificateViewModal() {
     const resident = certificate ? residents.find((r) => r.id === certificate.residentId) : null;
 
     return (
-        <Modal show={!!certificate} onHide={closeViewCertificate}>
+        <Modal show={!!certificate} onHide={closeViewCertificate} fullscreen="sm-down" scrollable>
             <Modal.Header closeButton>
                 <Modal.Title>Certificate Details</Modal.Title>
             </Modal.Header>

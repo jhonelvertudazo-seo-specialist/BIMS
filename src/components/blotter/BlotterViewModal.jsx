@@ -37,7 +37,7 @@ export default function BlotterViewModal() {
     const blotter = blotters.find((b) => b.id === blotterViewId);
 
     return (
-        <Modal show={!!blotter} onHide={closeViewBlotter}>
+        <Modal show={!!blotter} onHide={closeViewBlotter} fullscreen="sm-down" scrollable>
             <Modal.Header closeButton>
                 <Modal.Title>Blotter Case Details</Modal.Title>
             </Modal.Header>

@@ -147,7 +147,7 @@ export default function HouseholdsPage() {
                         </div>
                     </div>
                     <div className="row g-2 mt-0 align-items-center">
-                        <div className="col-3 col-md-2">
+                        <div className="col-6 col-md-2">
                             <input
                                 type="number"
                                 min="0"
@@ -157,7 +157,7 @@ export default function HouseholdsPage() {
                                 onChange={(e) => setSizeMin(e.target.value)}
                             />
                         </div>
-                        <div className="col-3 col-md-2">
+                        <div className="col-6 col-md-2">
                             <input
                                 type="number"
                                 min="0"
@@ -167,7 +167,7 @@ export default function HouseholdsPage() {
                                 onChange={(e) => setSizeMax(e.target.value)}
                             />
                         </div>
-                        <div className="col-3 col-md-3 form-check d-flex align-items-center gap-2 ps-4">
+                        <div className="col-6 col-md-3 form-check d-flex align-items-center gap-2 ps-4">
                             <input
                                 type="checkbox"
                                 className="form-check-input mt-0"
@@ -177,7 +177,7 @@ export default function HouseholdsPage() {
                             />
                             <label className="form-check-label small" htmlFor="hasPwdFilter">Has PWD member</label>
                         </div>
-                        <div className="col-3 col-md-3 form-check d-flex align-items-center gap-2 ps-4">
+                        <div className="col-6 col-md-3 form-check d-flex align-items-center gap-2 ps-4">
                             <input
                                 type="checkbox"
                                 className="form-check-input mt-0"
