@@ -140,7 +140,7 @@ export const NAV_TREE = [
         ],
     },
     {
-        icon: '⚙️', label: 'System Settings',
+        icon: '⚙️', label: 'Settings',
         children: [
             { to: '/settings/barangay-profile', label: 'Barangay Profile' },
             { to: '/settings/certificate-templates', label: 'Certificate Templates' },
