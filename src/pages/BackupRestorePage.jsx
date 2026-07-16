@@ -1,6 +1,10 @@
+import { useCallback, useEffect, useState } from 'react';
 import { useData } from '../context/DataContext.jsx';
+import { useAuth } from '../context/AuthContext.jsx';
 import { downloadCsv } from '../utils/actions.js';
-import { formatDate } from '../utils/format.js';
+import { formatDate, formatFileSize } from '../utils/format.js';
+import { runDatabaseBackup, listDatabaseBackups, downloadDatabaseBackup } from '../lib/backup.js';
+import LoadingSpinner from '../components/common/LoadingSpinner.jsx';
 
 function Step({ number, title, children }) {
     return (
@@ -14,8 +18,60 @@ function Step({ number, title, children }) {
     );
 }
 
+function formatWhen(value) {
+    if (!value) return '—';
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) return '—';
+    return date.toLocaleString('en-US', { month: 'short', day: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+}
+
 export default function BackupRestorePage() {
     const { residents, households, certificates, blotters } = useData();
+    const { user, isAdmin } = useAuth();
+
+    const [backups, setBackups] = useState([]);
+    const [backupsLoading, setBackupsLoading] = useState(isAdmin);
+    const [running, setRunning] = useState(false);
+    const [downloadingId, setDownloadingId] = useState(null);
+    const [toast, setToast] = useState('');
+
+    const loadBackups = useCallback(async () => {
+        if (!isAdmin) return;
+        setBackupsLoading(true);
+        try {
+            setBackups(await listDatabaseBackups());
+        } catch (err) {
+            console.error('Failed to load backups:', err.message);
+        } finally {
+            setBackupsLoading(false);
+        }
+    }, [isAdmin]);
+
+    useEffect(() => { loadBackups(); }, [loadBackups]);
+
+    async function handleRunBackup() {
+        setRunning(true);
+        try {
+            const record = await runDatabaseBackup({ residents, households, certificates, blotters }, user?.email);
+            setBackups((prev) => [record, ...prev]);
+            setToast('Backup created successfully.');
+        } catch (err) {
+            setToast(err.message || 'Failed to create backup.');
+        } finally {
+            setRunning(false);
+        }
+    }
+
+    async function handleDownload(backup) {
+        setDownloadingId(backup.id);
+        try {
+            await downloadDatabaseBackup(backup.file_path, backup.file_name);
+        } catch (err) {
+            setToast(err.message || 'Failed to download backup.');
+        } finally {
+            setDownloadingId(null);
+        }
+    }
 
     function exportResidents() {
         downloadCsv(
@@ -115,6 +171,80 @@ export default function BackupRestorePage() {
                     </div>
                 </div>
             </div>
+
+            {isAdmin && (
+                <div className="card shadow-sm border-0">
+                    <div className="card-header bg-white">
+                        <div className="d-flex flex-column flex-sm-row justify-content-between align-items-stretch align-items-sm-center gap-2">
+                            <div>
+                                <h5 className="mb-0">Automatic Backup to Supabase</h5>
+                                <p className="text-muted small mb-0">
+                                    Snapshots Residents, Households, Certificates, and Blotter Records into one JSON
+                                    file, uploaded to a private Supabase Storage bucket and logged below.
+                                </p>
+                            </div>
+                            <button type="button" className="btn btn-accent text-nowrap" onClick={handleRunBackup} disabled={running}>
+                                {running ? 'Backing up…' : '🗄️ Backup Now'}
+                            </button>
+                        </div>
+                    </div>
+                    <div className="card-body">
+                        {toast && (
+                            <div className="alert alert-info py-2 small d-flex justify-content-between align-items-center">
+                                <span>{toast}</span>
+                                <button type="button" className="btn-close" onClick={() => setToast('')} aria-label="Close"></button>
+                            </div>
+                        )}
+                        {backupsLoading ? (
+                            <LoadingSpinner label="Loading backups…" />
+                        ) : backups.length === 0 ? (
+                            <div className="text-center text-muted py-5">
+                                <p className="fs-1 mb-2">🗄️</p>
+                                <p className="fs-5">No backups yet.</p>
+                                <p>Click &quot;Backup Now&quot; to create the first one.</p>
+                            </div>
+                        ) : (
+                            <div className="table-responsive">
+                                <table className="table table-hover align-middle mb-0 table-stack">
+                                    <thead className="table-light">
+                                        <tr>
+                                            <th>File</th>
+                                            <th>Created</th>
+                                            <th>By</th>
+                                            <th>Records</th>
+                                            <th>Size</th>
+                                            <th className="text-end">Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {backups.map((b) => (
+                                            <tr key={b.id}>
+                                                <td data-label="File">{b.file_name}</td>
+                                                <td data-label="Created">{formatWhen(b.created_at)}</td>
+                                                <td data-label="By">{b.created_by || '—'}</td>
+                                                <td data-label="Records">
+                                                    {Object.values(b.record_counts || {}).reduce((sum, n) => sum + (Number(n) || 0), 0)}
+                                                </td>
+                                                <td data-label="Size">{formatFileSize(b.size_bytes)}</td>
+                                                <td className="actions-cell text-end">
+                                                    <button
+                                                        type="button"
+                                                        className="btn btn-sm btn-outline-secondary"
+                                                        onClick={() => handleDownload(b)}
+                                                        disabled={downloadingId === b.id}
+                                                    >
+                                                        {downloadingId === b.id ? 'Preparing…' : '⬇ Download'}
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            )}
         </section>
     );
 }

@@ -43,6 +43,13 @@ export function monthLabel(timestamp) {
     return date.toLocaleDateString('en-US', { month: 'short' });
 }
 
+export function formatFileSize(bytes) {
+    const value = Number(bytes) || 0;
+    if (value < 1024) return `${value} B`;
+    if (value < 1024 * 1024) return `${(value / 1024).toFixed(1)} KB`;
+    return `${(value / (1024 * 1024)).toFixed(1)} MB`;
+}
+
 export function nameFromEmail(email) {
     if (!email) return 'Admin';
     const local = email.split('@')[0];
