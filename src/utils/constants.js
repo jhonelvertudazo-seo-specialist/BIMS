@@ -21,7 +21,6 @@ export const CERTIFICATE_TYPES = [
     'Barangay Clearance',
     'Certificate of Residency',
     'Certificate of Indigency',
-    'Certificate of Good Moral Character',
     'Business Permit Endorsement',
     'Cedula',
 ];
